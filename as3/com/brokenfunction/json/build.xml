@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<project name="JSON Tests" basedir="../../../../" default="build">
+	<target name="flex-tasks">
+		<!-- Check for FLEX_HOME -->
+		<property environment="env"/>
+		<condition property="FLEX_HOME" value="${env.FLEX_HOME}">
+			<and>
+				<not><isset property="FLEX_HOME"/></not>
+				<isset property="env.FLEX_HOME"/>
+			</and>
+		</condition>
+		<fail unless="FLEX_HOME" message="FLEX_HOME environment variable not specified, where's Flex's home?" />
+
+		<!-- Get Flex tasks -->
+		<property name="flex.antTasks" location="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
+		<fail message="Flex Ant Tasks missing from ${flex.antTasks}">
+			<condition>
+				<not><available file="${flex.antTasks}"/></not>
+			</condition>
+		</fail>
+		<taskdef resource="flexTasks.tasks" classpath="${flex.antTasks}"/>
+	</target>
+
+	<target name="build" depends="flex-tasks" description="Build">
+		<mxmlc fork="true"
+			file="as3/com/brokenfunction/json/TestJson.as"
+			output="as3/com/brokenfunction/json/bin/testjson.swf"
+			link-report="as3/com/brokenfunction/json/bin/testjson-report.xml"
+			use-network="false"
+		 	debug="true"
+		 	compiler.optimize="true"
+			static-link-runtime-shared-libraries="true">
+			<compiler.source-path path-element="as3"/>
+			<default-script-limits max-execution-time="60" max-recursion-depth="256"/>
+			<compiler.library-path dir="tools/ason/" append="true">
+				<include name="ason-1.1.2.swc" />
+			</compiler.library-path>
+		</mxmlc>
+	</target>
+</project>
