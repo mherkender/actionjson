@@ -81,7 +81,7 @@ package com.brokenfunction.json {
 
 			trace("All tests passed");
 
-			/*testDecode(
+			testDecode(
 				"true",
 				function (data:String):void {
 					for (var i:int = 0; i < 30000; i++) (new JSONDecoder(data)).getValue();},
@@ -169,7 +169,7 @@ package com.brokenfunction.json {
 					for (var i:int = 0; i < 1000; i++) decodeJson(data);},
 				function (data:String):void {
 					for (var i:int = 0; i < 30000; i++) JSON.decode(data);}
-			);*/
+			);
 			testEncode(
 				true,
 				function (data:Object):void {
