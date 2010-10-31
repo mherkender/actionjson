@@ -21,7 +21,9 @@ package com.brokenfunction.json {
 	 * an IDataOutput output stream if the "writeTo" argument is supplied.
 	 *
 	 * @parameter input An object to convert to JSON.
-	 * @parameter writeTo An IDataOutput output stream to write data to.
+	 * @parameter writeTo An optional IDataOutput output stream to write data to.
+	 * @return A valid JSON-encoded string if writeTo is not specified, otherwise
+	 * null is returned.
 	 * @see http://json.org/
 	 */
 	public const encodeJson:Function = initDecodeJson();

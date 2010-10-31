@@ -22,6 +22,10 @@ package com.brokenfunction.json {
 	import flash.utils.ByteArray;
 	import flash.utils.IDataInput;
 
+	/**
+	 * An asynchronous JSON decoder.
+	 * @see http://json.org/
+	 */
 	public class JsonDecoderAsync {
 		private static const _charConvert:ByteArray = new ByteArray();
 
@@ -29,18 +33,50 @@ package com.brokenfunction.json {
 		private var _result:* = undefined;
 		private var _buffer:ByteArray = new ByteArray();
 
+		/**
+		 * All JSON objects have a terminating character, allowing this code to know
+		 * the end of a JSON object without an EOF. All, except numbers. If you use
+		 * JsonDecoderAsync for the kind of processsing where an EOF is not
+		 * available, you can change the value of this property so it will return an
+		 * error instead when it reaches a top level number. If not, the parser will
+		 * continue until a non-numeric ([-+eE.0-9]) is found.
+		 */
 		public var parseTopLevelNumbers:Boolean = true;
+
+		/**
+		 * When parsing a top-level number, the parser will read past the last
+		 * character in the number. It is set here if this occurs, otherwise this
+		 * value is -1
+		 */
 		public var trailingByte:int = -1;
 
 		/**
 		 * The _stack is pretty simple, the last number represents what is currently
 		 * being processed.
 		 * <pre>
+		 * -1 - arbitrary value needs parsing (object, string, etc)
+		 * 0-0xff - the starting character of what's to be parsed, "[" for arrays for example
+		 * 0x100-0x1ff - number-related parsing sections
+		 * 0x200-0x2ff - string-related parsing sections
+		 * 0x300-0x3ff - object-related parsing sections
+		 * 0x400-0x4ff - array-related parsing sections
 		 * </pre>
+		 *
+		 * There's other things stored in the stack for objects and arrays
 		 * @private
 		 */
 		private var _stack:Array = [-1];
 
+		/**
+		 * Convert a String or ByteArray from an object to an a JSON-encoded string.
+		 *
+		 * This will automatically parse through.
+		 *
+		 * @parameter input An object to convert to JSON.
+		 * @parameter autoSubscribe If true, the decoder will attempt to subscribe
+		 * to any events that will provide more data, and start processing
+		 * immediately. Otherwise process() will have to be called manually.
+		 */
 		public function JsonDecoderAsync(input:*, autoSubscribe:Boolean = true):void {
 			// prepare the input
 			if (input is IDataInput) {
@@ -85,10 +121,26 @@ package com.brokenfunction.json {
 			process();
 		}
 
+		/**
+		 * Returns an object if the JSON was fully parsed.
+		 *
+		 * If parseTopLevelNumbers is true, then it may contain partially parsed
+		 * numbers while parsing a top-level number.
+		 */
 		public function get result():* {
 			return _result;
 		}
 
+		/**
+		 * Continue processing data, limited
+		 *
+		 * @property limit Stop processing after this many characters. Please note
+		 * that this is not a hard limit, only a rough limit. If limit is 0 it will
+		 * continue until an EOF is encountered.
+		 * @return True if processing is finished. If parseTopLevelNumbers is true
+		 * this function may return false even if there is no more data, since the
+		 * function can't know if more data is coming for top-level numbers.
+		 */
 		public function process(limit:uint = 0):Boolean {
 			if (_stack.length <= 0) {
 				return true;

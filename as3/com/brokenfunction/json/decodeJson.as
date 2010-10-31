@@ -25,6 +25,7 @@ package com.brokenfunction.json {
 	 * invalid JSON, but generally this is very strict.
 	 *
 	 * @parameter input A JSON-encoded ByteArray or String.
+	 * @return The object created by the JSON decoding.
 	 * @see http://json.org/
 	 */
 	public const decodeJson:Function = initDecodeJson();
@@ -75,6 +76,9 @@ function initDecodeJson():Function {
 		}
 		return result;
 	};
+
+	// parse is a mapping of the first character of what's being parsed, to the
+	// function that parses it
 	const parse:Object = {
 		0x22: function ():String {// "
 			// parse a string
