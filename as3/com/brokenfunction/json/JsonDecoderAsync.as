@@ -361,6 +361,7 @@ package com.brokenfunction.json {
 							// have to do this here, since we've read too far into the input
 							if (_stack[_stack.length - 2] === 0x302) {// an object is being parsed
 								if (char === 0x2c) {// == ,
+									_stack[_stack.length - 4][_stack[_stack.length - 3]] = result;
 									_stack.pop();
 									_stack[_stack.length - 1] = 0x304;
 								} else if (char === 0x7d) {// == }
