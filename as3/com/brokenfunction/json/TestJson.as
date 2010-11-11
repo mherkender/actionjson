@@ -303,7 +303,7 @@ package com.brokenfunction.json {
 			}
 
 			// try the async decoder
-			/*try {
+			try {
 				trace(input+" -> " + expectedResult + " (async)");
 				data = (new JsonDecoderAsync(input)).result;
 				adobeResult = (new JSONEncoder(data)).getString();
@@ -312,10 +312,10 @@ package com.brokenfunction.json {
 				}
 			} catch (e:Error) {
 				throw new Error("JSONEncoder(JsonDecoderAsync()) failed: " + input + " -> " + expectedResult + "\n" + e.getStackTrace() + "\n\n");
-			}*/
+			}
 
 			// try the async decoder, but only give one byte at a time
-			/*try {
+			try {
 				trace(input+" -> " + expectedResult + " (async 2)");
 				var bytes:ByteArray = new ByteArray();
 				bytes.writeUTFBytes(input);
@@ -335,10 +335,10 @@ package com.brokenfunction.json {
 				}
 			} catch (e:Error) {
 				throw new Error("JSONEncoder(JsonDecoderAsync()) (socket version) failed: " + input + " -> " + expectedResult + "\n" + e.getStackTrace() + "\n\n");
-			}*/
+			}
 
 			// try the async decoder, but use limit
-			/*if (!isNumber) {
+			if (!isNumber) {
 				try {
 					trace(input+" -> " + expectedResult + " (async 3)");
 					asyncDecoder = new JsonDecoderAsync(input, false);
@@ -350,14 +350,14 @@ package com.brokenfunction.json {
 				} catch (e:Error) {
 					throw new Error("JSONEncoder(JsonDecoderAsync()) (limit version) failed: " + input + " -> " + expectedResult + "\n" + e.getStackTrace() + "\n\n");
 				}
-			}*/
+			}
 		}
 
 		public function checkDecode3(input:String, extraChars:String, expectedResult:String, isNumber:Boolean):void {
 			checkDecode2(input + extraChars, expectedResult, isNumber);
 
 			// try the async decoder, but make sure it doesn't read past the end of the string
-			/*try {
+			try {
 				trace(input+" -> " + expectedResult + " (async extra chars)");
 				var bytes:ByteArray = new ByteArray();
 				bytes.writeUTFBytes(input + extraChars);
@@ -380,7 +380,7 @@ package com.brokenfunction.json {
 				}
 			} catch (e:Error) {
 				throw new Error("JSONEncoder(JsonDecoderAsync()) (extra chars) failed: " + input + extraChars + " -> " + expectedResult + "\n" + e.getStackTrace() + "\n\n");
-			}*/
+			}
 		}
 
 		public function checkEncode(input:Object, expectedResult:String = ""):void {
