@@ -94,16 +94,16 @@ function initDecodeJson():Function {
 	};
 
 	const parseWhitespace:Function = function():Object {
-		while (byteInput[position] == 0x20 || byteInput[position] == 0xd ||
-			byteInput[position] == 0xa || byteInput[position] == 0x9) {// == " ", \r, \n, \t
+		while (byteInput[position] === 0x20 || byteInput[position] === 0xd ||
+			byteInput[position] === 0xa || byteInput[position] === 0x9) {// == " ", \r, \n, \t
 			position++;
 		}
 		return parse[byteInput[position++]]();
 	};
 
 	const skipWhitespace:Function = function():int {
-		while (byteInput[position] == 0x20 || byteInput[position] == 0xd ||
-			byteInput[position] == 0xa || byteInput[position] == 0x9) {// == " ", \r, \n, \t
+		while (byteInput[position] === 0x20 || byteInput[position] === 0xd ||
+			byteInput[position] === 0xa || byteInput[position] === 0x9) {// == " ", \r, \n, \t
 			position++;
 		}
 		return byteInput[position++];
@@ -117,7 +117,7 @@ function initDecodeJson():Function {
 			strPosition = position;
 			str.position = 0;
 			str.length = 0;
-			while ((char = byteInput[strPosition++]) != 0x22) {// != "
+			while ((char = byteInput[strPosition++]) !== 0x22) {// != "
 				// all non-ascii utf8 bytes have the last bit (0x80) set,
 				// so this code works for ascii and valid utf8
 				if (char === 0x5c) {// == \

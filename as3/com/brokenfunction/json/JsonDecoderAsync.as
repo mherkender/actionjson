@@ -338,7 +338,7 @@ package com.brokenfunction.json {
 							return false;
 						case 0x6e: // n (start parsing null)
 							if (_input.bytesAvailable >= 3) {
-								if (_input.readShort() === 0x756c && _input.readUnsignedByte() == 0x6c) {// == ull
+								if (_input.readShort() === 0x756c && _input.readUnsignedByte() === 0x6c) {// == ull
 									result = null;
 									_stack.pop();
 									continue mainloop;
@@ -359,7 +359,7 @@ package com.brokenfunction.json {
 							_buffer.length = 0;
 
 							// have to do this here, since we've read too far into the input
-							if (_stack[_stack.length - 2] == 0x302) {// an object is being parsed
+							if (_stack[_stack.length - 2] === 0x302) {// an object is being parsed
 								if (char === 0x2c) {// == ,
 									_stack.pop();
 									_stack[_stack.length - 1] = 0x304;
@@ -370,7 +370,7 @@ package com.brokenfunction.json {
 								} else {
 									throw new Error("Unexpected ] while parsing object");
 								}
-							} else if (_stack[_stack.length - 2] == 0x400) {// an array is being parsed
+							} else if (_stack[_stack.length - 2] === 0x400) {// an array is being parsed
 								if (char === 0x2c) {// == ,
 									(_stack[_stack.length - 3] as Array).push(result);
 									_stack[_stack.length - 1] = -1;
@@ -390,15 +390,15 @@ package com.brokenfunction.json {
 						case 0x20:// " "
 							// skip whitespace
 							while ((char = _input.readUnsignedByte()) === 0x20 ||// == " "
-								char == 0xd || char == 0xa || char == 0x9) {};// == \r, \n, \t
+								char === 0xd || char === 0xa || char === 0x9) {};// == \r, \n, \t
 							_stack[_stack.length - 1] = char;
 							break;
 
 						case 0x101:// number parser when the number is the only value
 							while (_input.bytesAvailable) {
 								if (((char = _input.readUnsignedByte()) >= 0x30 && char <= 0x39) ||
-									char == 0x65 || char == 0x45 || char == 0x2e ||
-									char == 0x2b || char == 0x2d) {// 0-9, e, E, ., +, -
+									char === 0x65 || char === 0x45 || char === 0x2e ||
+									char === 0x2b || char === 0x2d) {// 0-9, e, E, ., +, -
 									_buffer.writeByte(char);
 								} else {
 									trailingByte = char;
