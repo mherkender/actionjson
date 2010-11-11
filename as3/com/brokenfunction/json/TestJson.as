@@ -275,6 +275,7 @@ package com.brokenfunction.json {
 			checkDecode2("[" + input + "," + input + "]", "[" + expectedResult + "," + expectedResult + "]", false);
 			checkDecode2("[\n\r\t " + input + "\n\r\t ,\n\r\t " + input + "\n\r\t ]", "[" + expectedResult + "," + expectedResult + "]", false);
 			checkDecode2("{\"a\":{\"b\":{\"c\":\n\r\t " + input + "\n\r\t }}}", "{\"a\":{\"b\":{\"c\":" + expectedResult + "}}}", false);
+			checkDecode2("{ \"a\" : " + input + " , \"b\": [" + input + "] }", "{\"b\":[" + expectedResult + "],\"a\":" + expectedResult + "}", false);
 		}
 
 		public function checkDecodeMulti(input:String, possibleResults:Array):void {
