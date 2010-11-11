@@ -51,6 +51,24 @@ function initDecodeJson():Function {
 	charConvert[0x72] = 0xd;// \r -> carriage return
 	charConvert[0x74] = 0x9;// \t -> horizontal tab
 
+	const isNumberChar:ByteArray = new ByteArray();
+	isNumberChar.length = 0x100;// fill w/ 0's
+	isNumberChar[0x2b] = 1;// +
+	isNumberChar[0x2d] = 1;// -
+	isNumberChar[0x2e] = 1;// .
+	isNumberChar[0x30] = 1;// 0
+	isNumberChar[0x31] = 1;// 1
+	isNumberChar[0x32] = 1;// 2
+	isNumberChar[0x33] = 1;// 3
+	isNumberChar[0x34] = 1;// 4
+	isNumberChar[0x35] = 1;// 5
+	isNumberChar[0x36] = 1;// 6
+	isNumberChar[0x37] = 1;// 7
+	isNumberChar[0x38] = 1;// 8
+	isNumberChar[0x39] = 1;// 9
+	isNumberChar[0x45] = 1;// E
+	isNumberChar[0x65] = 1;// e
+
 	const parseNumber:Function = function():Number {
 		var result:Number;
 		if (position === 1) {
@@ -64,9 +82,7 @@ function initDecodeJson():Function {
 			// parsing an object or array
 			// ], }, or , will be at end of the number
 			strPosition = --position;
-			while (
-				(char = byteInput[position++]) != 0x5d &&
-				char != 0x7d && char != 0x2c) {};
+			while (isNumberChar[byteInput[position++]]) {};
 			byteInput.position = strPosition;
 			result = Number(byteInput.readUTFBytes(position - strPosition - 1));
 			position = byteInput.position;
@@ -75,6 +91,22 @@ function initDecodeJson():Function {
 			}
 		}
 		return result;
+	};
+
+	const parseWhitespace:Function = function():Object {
+		while (byteInput[position] == 0x20 || byteInput[position] == 0xd ||
+			byteInput[position] == 0xa || byteInput[position] == 0x9) {// == " ", \r, \n, \t
+			position++;
+		}
+		return parse[byteInput[position++]]();
+	};
+
+	const skipWhitespace:Function = function():int {
+		while (byteInput[position] == 0x20 || byteInput[position] == 0xd ||
+			byteInput[position] == 0xa || byteInput[position] == 0x9) {// == " ", \r, \n, \t
+			position++;
+		}
+		return byteInput[position++];
 	};
 
 	// parse is a mapping of the first character of what's being parsed, to the
@@ -149,7 +181,7 @@ function initDecodeJson():Function {
 			}
 		},
 		0x7b: function ():Object {// {
-			if (byteInput[position++] === 0x7d) {// == }
+			if (skipWhitespace() === 0x7d) {// == }
 				return {};
 			}
 
@@ -157,28 +189,43 @@ function initDecodeJson():Function {
 			var key:String;
 			position--;
 			do {
-				key = parse[byteInput[position++]]();
-				if (byteInput[position++] != 0x3a) {
-					throw new Error("Expected : at " + position);
+				do {
+					key = parse[byteInput[position++]]();
+					if (byteInput[position] !== 0x3a) {
+						if (skipWhitespace() !== 0x3a) {
+							throw new Error("Expected : at " + (position - 1));
+						}
+					} else {
+						position++;
+					}
+					result[key] = parse[byteInput[position++]]();
+				} while (byteInput[position++] === 0x2c);// == ,
+				if (byteInput[position - 1] === 0x7d) {// != }
+					return result;
 				}
-				result[key] = parse[byteInput[position++]]();
-			} while (byteInput[position++] == 0x2c /* == , */);
-			if (byteInput[position - 1] != 0x7d) {// != }
+			} while (skipWhitespace() === 0x2c);// == ,
+			if (byteInput[position - 1] !== 0x7d) {// != }
 				throw new Error("Expected , or } at " + (position - 1));
 			}
 			return result;
 		},
 		0x5b: function ():Object {// [
-			if (byteInput[position++] === 0x5d) {// == ]
+			if (skipWhitespace() === 0x5d) {// == ]
 				return [];
 			}
 
 			var result:Array = [];
 			position--;
 			do {
-				result[result.length] = parse[byteInput[position++]]();
-			} while (byteInput[position++] == 0x2c /* == , */);
-			if (byteInput[position - 1] != 0x5d) {// != ]
+				do {
+					result[result.length] = parse[byteInput[position++]]();
+				} while (byteInput[position++] === 0x2c);// == ,
+				if (byteInput[position - 1] === 0x5d) {// != ]
+					return result;
+				}
+				position--;
+			} while (skipWhitespace() === 0x2c);
+			if (byteInput[position - 1] !== 0x5d) {
 				throw new Error("Expected , or ] at " + (position - 1));
 			}
 			return result;
@@ -226,7 +273,11 @@ function initDecodeJson():Function {
 		0x36: parseNumber,
 		0x37: parseNumber,
 		0x38: parseNumber,
-		0x39: parseNumber
+		0x39: parseNumber,
+		0xd: parseWhitespace,
+		0xa: parseWhitespace,
+		0x9: parseWhitespace,
+		0x20: parseWhitespace
 	};
 
 	return function (input:*):Object {
