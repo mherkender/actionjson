@@ -121,6 +121,11 @@ package com.brokenfunction.json {
 			process();
 		}
 
+		private function isWhitespace(char:int):Boolean {
+			return (char === 0x20 || char === 0xd || char === 0xa || char === 0x9);
+			// == " ", \r, \n, \t
+		}
+
 		/**
 		 * Returns an object if the JSON was fully parsed.
 		 *
@@ -221,13 +226,18 @@ package com.brokenfunction.json {
 							if ((char = _input.readUnsignedByte()) === 0x7d) {// == }
 								result = {};
 								_stack.pop();
-							} else if (char === 0x22) {// == "
-								_stack[_stack.length - 1] = {};// the object being created
-								_stack[_stack.length] = null;// the current property being parsed
-								_stack[_stack.length] = 0x300;// object parser, next stage
-								_stack[_stack.length] = 0x22;// string parser (for the property)
 							} else {
-								throw new Error("Unexpected character 0x" + char.toString(16) + " at the start of object");
+								if (char === 0x22) {// == "
+									_stack[_stack.length - 1] = {};// the object being created
+									_stack[_stack.length] = null;// the current property being parsed
+									_stack[_stack.length] = 0x300;// object parser, next stage
+									_stack[_stack.length] = 0x22;// string parser
+								} else if (isWhitespace(char)) {
+									continue mainloop;
+								} else {
+									throw new Error("Unexpected character 0x" +
+										char.toString(16) + " at the start of object");
+								}
 							}
 							continue mainloop;
 						case 0x300:// key (string) has been parsed
@@ -235,6 +245,9 @@ package com.brokenfunction.json {
 							_stack[_stack.length - 1] = 0x301;
 						case 0x301:// parse : and value
 							if ((char = _input.readUnsignedByte()) !== 0x3a) {// == :
+								if (isWhitespace(char)) {
+									continue mainloop;
+								}
 								throw new Error("Expected : during object parsing, not 0x" + char.toString(16));
 							}
 							_stack[_stack.length - 1] = 0x302;
@@ -253,6 +266,8 @@ package com.brokenfunction.json {
 								result = _stack[_stack.length - 3];
 								_stack.length -= 3;
 								continue mainloop;
+							} else if (isWhitespace(char)) {
+								continue mainloop;
 							} else {
 								throw new Error("Expected , or } during object parsing, not 0x" + char.toString(16));
 							}
@@ -260,6 +275,8 @@ package com.brokenfunction.json {
 							if (_input.readUnsignedByte() === 0x22) {// != "
 								_stack[_stack.length - 1] = 0x300;
 								_stack[_stack.length] = 0x22;
+							} else if (isWhitespace(char)) {
+								continue mainloop;
 							} else {
 								throw new Error("Expected \" during object parsing, not 0x" + char.toString(16));
 							}
@@ -269,6 +286,8 @@ package com.brokenfunction.json {
 							if ((char = _input.readUnsignedByte()) === 0x5d) {// == ]
 								result = [];
 								_stack.pop();
+								continue mainloop;
+							} else if (isWhitespace(char)) {
 								continue mainloop;
 							}
 							_stack[_stack.length - 1] = [];// the array being created
@@ -288,6 +307,8 @@ package com.brokenfunction.json {
 							} else if (char === 0x5d) {// == ]
 								result = _stack[_stack.length - 2];
 								_stack.length -= 2;
+							} else if (isWhitespace(char)) {
+								continue mainloop;
 							} else {
 								throw new Error("Expected , or ] during array parsing, not 0x" + char.toString(16));
 							}
@@ -362,6 +383,16 @@ package com.brokenfunction.json {
 								}
 							}
 							continue mainloop;
+
+						case 0xd:// \r
+						case 0xa:// \n
+						case 0x9:// \t
+						case 0x20:// " "
+							// skip whitespace
+							while ((char = _input.readUnsignedByte()) === 0x20 ||// == " "
+								char == 0xd || char == 0xa || char == 0x9) {};// == \r, \n, \t
+							_stack[_stack.length - 1] = char;
+							break;
 
 						case 0x101:// number parser when the number is the only value
 							while (_input.bytesAvailable) {
