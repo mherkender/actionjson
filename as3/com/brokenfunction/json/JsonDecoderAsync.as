@@ -272,7 +272,7 @@ package com.brokenfunction.json {
 								throw new Error("Expected , or } during object parsing, not 0x" + char.toString(16));
 							}
 						case 0x304: // ensure next key is a string
-							if (_input.readUnsignedByte() === 0x22) {// != "
+							if ((char = _input.readUnsignedByte()) === 0x22) {// != "
 								_stack[_stack.length - 1] = 0x300;
 								_stack[_stack.length] = 0x22;
 							} else if (isWhitespace(char)) {
