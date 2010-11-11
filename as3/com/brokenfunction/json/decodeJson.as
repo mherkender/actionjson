@@ -263,21 +263,21 @@ function initDecodeJson():Function {
 		0x2c: function ():void {// ,
 			throw new Error("Unexpected comma at " + position);
 		},
-		0x2d: parseNumber,
-		0x30: parseNumber,
-		0x31: parseNumber,
-		0x32: parseNumber,
-		0x33: parseNumber,
-		0x34: parseNumber,
-		0x35: parseNumber,
-		0x36: parseNumber,
-		0x37: parseNumber,
-		0x38: parseNumber,
-		0x39: parseNumber,
-		0xd: parseWhitespace,
-		0xa: parseWhitespace,
-		0x9: parseWhitespace,
-		0x20: parseWhitespace
+		0x2d: parseNumber,// -
+		0x30: parseNumber,// 0
+		0x31: parseNumber,// 1
+		0x32: parseNumber,// 2
+		0x33: parseNumber,// 3
+		0x34: parseNumber,// 4
+		0x35: parseNumber,// 5
+		0x36: parseNumber,// 6
+		0x37: parseNumber,// 7
+		0x38: parseNumber,// 8
+		0x39: parseNumber,// 9
+		0xd: parseWhitespace,// \r
+		0xa: parseWhitespace,// \n
+		0x9: parseWhitespace,// \t
+		0x20: parseWhitespace// " "
 	};
 
 	return function (input:*):Object {
