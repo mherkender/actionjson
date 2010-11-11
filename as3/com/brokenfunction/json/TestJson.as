@@ -139,7 +139,7 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 30000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 10000; i++) JSON.decode(data);}
 			);
 			testDecode(
 				"{\"test\":\"sdfsdf\",\"test2\":\"sdfsdf\"}",
@@ -152,7 +152,7 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 30000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 10000; i++) JSON.decode(data);}
 			);
 			testDecode(
 				encodeJson({
@@ -176,7 +176,7 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 1000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 30000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 1000; i++) JSON.decode(data);}
 			);
 			testEncode(
 				true,
@@ -185,7 +185,7 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 100000; i++) JSON.encode(data);}
 			);
 			testEncode(
 				-123e4,
@@ -194,7 +194,7 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 100000; i++) JSON.encode(data);}
 			);
 			testEncode(
 				"this is a string",
@@ -203,7 +203,7 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 100000; i++) JSON.encode(data);}
 			);
 			testEncode(
 				"this is a much longer string to understand the effect the size of the string has on the results",
@@ -212,7 +212,7 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 10000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 10000; i++) JSON.encode(data);}
 			);
 			testEncode(
 				[Number.MIN_VALUE, "test", null],
@@ -221,7 +221,7 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 10000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 10000; i++) JSON.encode(data);}
 			);
 			testEncode(
 				{a:12345, b:null},
@@ -250,7 +250,7 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 1000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 1000; i++) JSON.encode(data);}
 			);
 		}
 
