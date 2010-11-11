@@ -34,10 +34,18 @@ package com.brokenfunction.json {
 			checkDecode("123E-1", "12.3", true);
 			checkDecode("123e-001", "12.3", true);
 			checkDecode("[]");
+			checkDecode("[\r\n\t ]","[]");
 			checkDecode("[\"string\",null,true,false,1]");
+			checkDecode(
+				"[ \"string\" ,\rnull\r,\ntrue\n,\tfalse\t,\r1\r]",
+				"[\"string\",null,true,false,1]");
 			checkDecode("[\"test\\u0021\"]", "[\"test\u0021\"]");
 			checkDecode("{}");
+			checkDecode("{\r\n\t }","{}");
 			checkDecode("{\"test\":{\"test\":{\"test\":\"sdfsdf\"}}}");
+			checkDecode(
+				"{\r\"test\"\r:\n{\n\"test\"\t:\t{ \"test\" :\r\"sdfsdf\"\n}\t} }",
+				"{\"test\":{\"test\":{\"test\":\"sdfsdf\"}}}");
 			checkDecode("{\"test\":\"sdfsdf\",\"test\":\"sdfsdf\"}", "{\"test\":\"sdfsdf\"}");
 			checkDecode("[\"test\",43243,{\"test\":\"sdfsdf\"},4343]");
 			checkDecode("[\"string\",null,true,false,1,{\"string\":\"string\"}]");
@@ -259,6 +267,7 @@ package com.brokenfunction.json {
 
 			// try combining it with something else
 			checkDecode2("{\"test\":" + input + "}", "{\"test\":" + expectedResult + "}", false);
+			checkDecode2("\n\r\t " + input + "\n\r\t ", expectedResult, false);
 			checkDecode2("[[2],[[[" + input + "]],[5]]]", "[[2],[[[" + expectedResult + "]],[5]]]", false);
 			checkDecode2("{\"a\":{\"b\":{\"c\":" + input + "}}}", "{\"a\":{\"b\":{\"c\":" + expectedResult + "}}}", false);
 			checkDecode2("[" + input + "]", "[" + expectedResult + "]", false);
