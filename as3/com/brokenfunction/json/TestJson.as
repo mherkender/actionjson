@@ -76,10 +76,12 @@ package com.brokenfunction.json {
 			checkEncode(Number.MIN_VALUE);
 			checkEncode([]);
 			checkEncode(["test"]);
+			checkEncode([true, false]);
 			checkEncode([0, 1, 2]);
 			checkEncode(["string",null,true,false,1,{"string":"string"}]);
 			checkEncode({});
 			checkEncode({"test": "test"});
+			checkEncode({"a": 1, "b": 2});
 			checkEncode({"a": 1, "b": 2, "c": 3});
 			checkEncode({
 				a: 234,
@@ -185,7 +187,9 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 100000; i++) JSON.encode(data);},
+				function (data:Object):void {
+					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;}
 			);
 			testEncode(
 				-123e4,
@@ -194,7 +198,9 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 100000; i++) JSON.encode(data);},
+				function (data:Object):void {
+					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;}
 			);
 			testEncode(
 				"this is a string",
@@ -203,7 +209,9 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 100000; i++) JSON.encode(data);},
+				function (data:Object):void {
+					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;}
 			);
 			testEncode(
 				"this is a much longer string to understand the effect the size of the string has on the results",
@@ -212,7 +220,9 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 10000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 10000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 10000; i++) JSON.encode(data);},
+				function (data:Object):void {
+					for (var i:int = 0; i < 10000; i++) (new JsonEncoderAsync(data)).result;}
 			);
 			testEncode(
 				[Number.MIN_VALUE, "test", null],
@@ -221,7 +231,9 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 10000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 10000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 10000; i++) JSON.encode(data);},
+				function (data:Object):void {
+					for (var i:int = 0; i < 10000; i++) (new JsonEncoderAsync(data)).result;}
 			);
 			testEncode(
 				{a:12345, b:null},
@@ -230,7 +242,9 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 30000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 30000; i++) JSON.encode(data);},
+				function (data:Object):void {
+					for (var i:int = 0; i < 30000; i++) (new JsonEncoderAsync(data)).result;}
 			);
 			testEncode(
 				{
@@ -250,7 +264,9 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 1000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 1000; i++) JSON.encode(data);}
+					for (var i:int = 0; i < 1000; i++) JSON.encode(data);},
+				function (data:Object):void {
+					for (var i:int = 0; i < 1000; i++) (new JsonEncoderAsync(data)).result;}
 			);
 		}
 
@@ -400,14 +416,26 @@ package com.brokenfunction.json {
 		}
 
 		public function checkEncode2(input:Object, expectedResult:String):void {
+			// try the fast encoder
 			try {
-				trace("encode(" + expectedResult + ")");
+				trace("encodeJson(" + expectedResult + ")");
 				var result:String = encodeJson(input);
 				if (expectedResult != result) {
 					throw new Error("Result: " + result);
 				}
 			} catch (e:Error) {
 				throw new Error("encodeJson(" + expectedResult + ") failed\n" + e.getStackTrace() + "\n\n");
+			}
+
+			// try the async encoder
+			try {
+				trace("JsonEncoderAsync(" + expectedResult + ")");
+				result = (new JsonEncoderAsync(input)).result;
+				if (expectedResult != result) {
+					throw new Error("Result: " + result);
+				}
+			} catch (e:Error) {
+				throw new Error("JsonEncoderAsync(" + expectedResult + ") failed\n" + e.getStackTrace() + "\n\n");
 			}
 		}
 
@@ -470,15 +498,20 @@ package com.brokenfunction.json {
 			//trace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
 		}
 
-		public function testEncode(data:Object, adobeTest:Function, fastTest:Function, asonTest:Function):void {
+		public function testEncode(data:Object, adobeTest:Function, fastTest:Function, asonTest:Function, asyncTest:Function):void {
 			var time:uint;
 			var resultAdobe:uint = 0;
 			var resultFast:uint = 0;
 			var resultAson:uint = 0;
+			var resultAsync:uint = 0;
 
 			time = getTimer();
 			adobeTest(data);
 			resultAdobe += getTimer() - time;
+
+			time = getTimer();
+			asyncTest(data);
+			resultAsync += getTimer() - time;
 
 			time = getTimer();
 			asonTest(data);
@@ -499,10 +532,15 @@ package com.brokenfunction.json {
 			time = getTimer();
 			asonTest(data);
 			resultAson += getTimer() - time;
+
+			time = getTimer();
+			asyncTest(data);
+			resultAsync += getTimer() - time;
 
 			trace("");
 			trace("Parsing results for " + encodeJson(data));
 			trace("encodeJson improvement: " + (Math.floor(100 * resultAdobe / resultFast) / 100) + "x");
+			trace("JsonDecoderAsync improvement: " + (Math.floor(100 * resultAdobe / resultAsync) / 100) + "x");
 			trace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
 		}
 	}
