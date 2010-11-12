@@ -92,18 +92,6 @@ package com.brokenfunction.json {
 
 			_input.endian = "bigEndian";
 
-			if (autoSubscribe) {
-				var dispatch:IEventDispatcher = input as IEventDispatcher;
-				if (dispatch) {
-					// dispatched by Sockets
-					dispatch.addEventListener(ProgressEvent.SOCKET_DATA, progressHandler, false, 0, true);
-
-					// dispatched by URLStreams
-					dispatch.addEventListener(ProgressEvent.PROGRESS, progressHandler, false, 0, true);
-				}
-				process();
-			}
-
 			if (!_charConvert.length) {
 				_charConvert.length = 0x100;// fill w/ 0's
 				_charConvert[0x22] = 0x22;// \" -> "
@@ -114,6 +102,18 @@ package com.brokenfunction.json {
 				_charConvert[0x6e] = 0xa;// \n -> newline
 				_charConvert[0x72] = 0xd;// \r -> carriage return
 				_charConvert[0x74] = 0x9;// \t -> horizontal tab
+			}
+
+			if (autoSubscribe) {
+				var dispatch:IEventDispatcher = input as IEventDispatcher;
+				if (dispatch) {
+					// dispatched by Sockets
+					dispatch.addEventListener(ProgressEvent.SOCKET_DATA, progressHandler, false, 0, true);
+
+					// dispatched by URLStreams
+					dispatch.addEventListener(ProgressEvent.PROGRESS, progressHandler, false, 0, true);
+				}
+				process();
 			}
 		}
 
