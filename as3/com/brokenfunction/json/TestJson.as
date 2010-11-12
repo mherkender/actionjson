@@ -437,6 +437,23 @@ package com.brokenfunction.json {
 			} catch (e:Error) {
 				throw new Error("JsonEncoderAsync(" + expectedResult + ") failed\n" + e.getStackTrace() + "\n\n");
 			}
+
+			// try the async encoder, but limit it
+			try {
+				trace("JsonEncoderAsync(" + expectedResult + ") (limited)");
+				var asyncDecoder:JsonEncoderAsync = new JsonEncoderAsync(input);
+				var chunks:int = 0;
+				while (!asyncDecoder.process(1)) {
+					chunks++;
+				};
+				trace("Note: " + chunks + " chunks");
+				result = asyncDecoder.result;
+				if (expectedResult != result) {
+					throw new Error("Result: " + result);
+				}
+			} catch (e:Error) {
+				throw new Error("JsonEncoderAsync(" + expectedResult + ") failed\n" + e.getStackTrace() + "\n\n");
+			}
 		}
 
 		public function testDecode(data:String, adobeTest:Function, fastTest:Function, asyncTest:Function, fastTest2:Function, asonTest:Function):void {
