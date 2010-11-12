@@ -137,7 +137,7 @@ package com.brokenfunction.json {
 		}
 
 		/**
-		 * Continue processing data, limited
+		 * Continue processing data.
 		 *
 		 * @property limit Stop processing after this many characters. Please note
 		 * that this is not a hard limit, only a rough limit. If limit is 0 it will
