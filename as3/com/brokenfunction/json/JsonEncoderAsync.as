@@ -17,6 +17,10 @@ package com.brokenfunction.json {
 	import flash.utils.ByteArray;
 	import flash.utils.IDataOutput;
 
+	/**
+	 * An asynchronous JSON encoder.
+	 * @see http://json.org/
+	 */
 	public class JsonEncoderAsync {
 		private static var _charConvert:Array;
 
@@ -24,8 +28,19 @@ package com.brokenfunction.json {
 		private var _byteOutput:ByteArray;
 		private var _tempBytes:ByteArray = new ByteArray();
 
+		/**
+		 * This is the function to execute to continue processing. If it is null
+		 * there is nothing left to process. Functions modify stackTop to set what
+		 * must be processed next.
+		 * @private
+		 */
 		private var stackTop:Function;
 
+		/**
+		 * @parameter input An object to convert to JSON.
+		 * @parameter writeTo An optional IDataOutput output stream to write data to.
+		 * @see http://json.org/
+		 */
 		public function JsonEncoderAsync(input:*, writeTo:IDataOutput = null):void {
 			// prepare the input
 			if (writeTo) {
@@ -35,6 +50,7 @@ package com.brokenfunction.json {
 			}
 			_output.endian = "bigEndian";
 
+			// conversions for escaped characters
 			if (!_charConvert) {
 				_charConvert = new Array(0x100);
 				for (var j:int = 0; j < 0x100; j++) {
@@ -52,12 +68,17 @@ package com.brokenfunction.json {
 				//_charConvert[0x2f] = 0x5c2f; // \/
 			}
 
+			// the initial stack function
 			stackTop = function ():void {
 				stackTop = null;
 				parseValue(input);
 			}
 		}
 
+		/**
+		 * A valid JSON-encoded string if writeTo is not specified, otherwise
+	   * this will throw an error.
+		 */
 		public function get result():String {
 			if (!_byteOutput) {
 				throw new Error("No result available when writeTo is used.");
@@ -69,6 +90,17 @@ package com.brokenfunction.json {
 			return _byteOutput.readUTFBytes(_byteOutput.length);
 		}
 
+		/**
+		 * Continue processing data. Warning, there are currently no limits placed
+		 * on string processing.
+		 *
+		 * @property limit Stop processing after this many chunks of data. Because
+		 * of limitations in Flash, it isn't very strict, and depends on the data
+		 * being processed. Find a number that works. If zero, process will continue
+		 * until there is nothing left to be processed
+		 * @return True if processing is finished, otherwise process will return
+		 * false.
+		 */
 		public function process(limit:uint = 0):Boolean {
 			if (limit) {
 				while (stackTop != null) {
@@ -125,10 +157,10 @@ package com.brokenfunction.json {
 			var length:int = input.length;
 			if (length >= 2) {
 				var pos:int = 1;
-				stackTop = function ():void {
+				stackTop = function ():void {// parse values 1-n
 					_output.writeByte(0x2c);// ,
 					if (pos >= length - 1) {
-						stackTop = function ():void {
+						stackTop = function ():void {// end processing
 							stackTop = stackNext;
 							_output.writeByte(0x5d);// ]
 						}
@@ -137,7 +169,7 @@ package com.brokenfunction.json {
 				}
 				parseValue(input[0]);
 			} else if (length >= 1) {
-				stackTop = function ():void {
+				stackTop = function ():void {// end processing
 					stackTop = stackNext;
 					_output.writeByte(0x5d);// ]
 				}
@@ -158,9 +190,9 @@ package com.brokenfunction.json {
 			var length:int = keys.length;
 			if (length >= 2) {
 				var pos:int = 1;
-				var value:Function = function ():void {
+				var value:Function = function ():void {// process an object value
 					if (pos >= length - 1) {
-						stackTop = function ():void {
+						stackTop = function ():void {// end processing
 							stackTop = stackNext;
 							_output.writeByte(0x7d);// }
 						}
@@ -170,20 +202,20 @@ package com.brokenfunction.json {
 					_output.writeByte(0x3a);// :
 					parseValue(input[keys[pos++]]);
 				}
-				var key:Function = function ():void {
+				var key:Function = function ():void {// process an object key after a value
 					stackTop = value
 					_output.writeByte(0x2c);// ,
 					parseString(keys[pos]);
 				}
-				stackTop = function ():void {
+				stackTop = function ():void {// process first object key
 					stackTop = key;
 					_output.writeByte(0x3a);// :
 					parseValue(input[keys[0]]);
 				}
 				parseString(keys[0]);
 			} else if (length >= 1) {
-				stackTop = function ():void {
-					stackTop = function ():void {
+				stackTop = function ():void {// process only object key
+					stackTop = function ():void {// process only object value
 						_output.writeByte(0x7d);// }
 						stackTop = stackNext;
 					}
