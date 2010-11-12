@@ -70,8 +70,17 @@ package com.brokenfunction.json {
 		}
 
 		public function process(limit:uint = 0):Boolean {
-			while (stackTop != null) {
-				stackTop();
+			if (limit) {
+				while (stackTop != null) {
+					stackTop();
+					if (limit-- > 0) {
+						return false;
+					}
+				}
+			} else {
+				while (stackTop != null) {
+					stackTop();
+				}
 			}
 			return true;
 		}
