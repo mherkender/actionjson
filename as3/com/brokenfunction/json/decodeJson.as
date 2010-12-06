@@ -297,14 +297,11 @@ function initDecodeJson():Function {
 			return parse[byteInput[position++]]();
 		} catch (e:TypeError) {
 			if (position - 1 < byteInput.length) {
-				throw new Error(
-					"Internal Stack Trace: " + (e.getStackTrace() || e.message) +
-					"\n\nExternal Stack Trace: Unexpected character " +
+				e.message = "Unexpected character " +
 					String.fromCharCode(byteInput[position - 1]) +
 					" (0x" + byteInput[position - 1].toString(16) + ")" +
-					" at position " + (position - 1));
-			} else {
-				throw e;
+					" at position " + (position - 1) + " (" + e.message + ")";
+			throw e;
 			}
 		} finally {
 			// cleanup
