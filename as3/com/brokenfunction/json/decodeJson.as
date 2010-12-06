@@ -37,8 +37,6 @@ function initDecodeJson():Function {
 	var position:uint;
 	var byteInput:ByteArray;
 	var char:uint;
-	var strPosition:uint;
-	const str:ByteArray = new ByteArray();
 
 	const charConvert:ByteArray = new ByteArray();
 	charConvert.length = 0x100;// fill w/ 0's
@@ -69,130 +67,111 @@ function initDecodeJson():Function {
 	isNumberChar[0x45] = 1;// E
 	isNumberChar[0x65] = 1;// e
 
+	// this is a trick to speed up the string parsing loop
+	// 1 means go, 0 means stop
+	const stringHelper:ByteArray = new ByteArray();
+	stringHelper.length = 0x100;// fill w/ 0's
+	var i:int = 0;
+	while (i < 0x100) {
+		stringHelper[i++] = 1;
+	}
+	stringHelper[0x22] = 0;// "
+	stringHelper[0x5c] = 0;// \
+
+	const isWhitespace:ByteArray = new ByteArray();
+	isWhitespace.length = 0x100;// fill w/ 0's
+	isWhitespace[0x9] = 1;// \t
+	isWhitespace[0xa] = 1;// \n
+	isWhitespace[0xd] = 1;// \r
+	isWhitespace[0x20] = 1;// " "
+
 	const parseNumber:Function = function():Number {
-		var result:Number;
 		if (position === 1) {
-			// read the rest of the input as a number
 			byteInput.position = 0;
-			result = parseFloat(byteInput.readUTFBytes(byteInput.length));
-			if (isNaN(result)) {
-				throw new Error("Expected number at position 0");
-			}
+			return parseFloat(byteInput.readUTFBytes(byteInput.length));
 		} else {
-			// parsing an object or array
-			// ], }, or , will be at end of the number
-			strPosition = --position;
-			while (isNumberChar[byteInput[position++]]) {};
-			byteInput.position = strPosition;
-			result = Number(byteInput.readUTFBytes(position - strPosition - 1));
-			position = byteInput.position;
-			if (isNaN(result)) {
-				throw new Error("Expected number at position " + (strPosition - 1));
-			}
+			byteInput.position = position - 1;
+			while (isNumberChar[byteInput[position++]]) {}
+			return Number(byteInput.readUTFBytes(position-- - byteInput.position - 1));
 		}
-		return result;
 	};
 
 	const parseWhitespace:Function = function():Object {
-		while (byteInput[position] === 0x20 || byteInput[position] === 0xd ||
-			byteInput[position] === 0xa || byteInput[position] === 0x9) {// == " ", \r, \n, \t
+		while (isWhitespace[byteInput[position]]) {
 			position++;
 		}
 		return parse[byteInput[position++]]();
 	};
 
-	const skipWhitespace:Function = function():int {
-		while (byteInput[position] === 0x20 || byteInput[position] === 0xd ||
-			byteInput[position] === 0xa || byteInput[position] === 0x9) {// == " ", \r, \n, \t
-			position++;
-		}
-		return byteInput[position++];
-	};
+	const parseStringEscaped:Function = function(result:String):String {
+		do {
+			// which special character is it?
+			if ((char = byteInput[position++]) === 0x75) {// \uxxxx -> utf8 char
+				byteInput.position = position;
+				char = parseInt(byteInput.readUTFBytes(4), 16);
+				position += 4;
+			} else if (!(char = charConvert[char])) {
+				throw new Error(
+					"Unknown escaped character encountered at position " +
+					(position - 1));
+			} else {
+				byteInput.position = position;
+			}
+
+			// write special character to result
+			result += String.fromCharCode(char);
+
+			while (stringHelper[byteInput[position++]]) {}
+
+			// flush the buffered data to the result
+			if ((position - 1) > byteInput.position) {
+				result += byteInput.readUTFBytes((position - 1) - byteInput.position);
+			}
+		} while (byteInput[position - 1] === 0x5c);// == /
+
+		return result;
+	}
 
 	// parse is a mapping of the first character of what's being parsed, to the
 	// function that parses it
 	const parse:Object = {
 		0x22: function ():String {// "
-			// parse a string
-			strPosition = position;
-			str.position = 0;
-			str.length = 0;
-			while ((char = byteInput[strPosition++]) !== 0x22) {// != "
-				// all non-ascii utf8 bytes have the last bit (0x80) set,
-				// so this code works for ascii and valid utf8
-				if (char === 0x5c) {// == \
-					// flush the buffered data to the result
-					if ((strPosition - 1) > position) {
-						byteInput.position = position;
-						byteInput.readBytes(str, str.position, (strPosition - 1) - position);
-						str.position = str.length;
-						position = strPosition = ++byteInput.position;
-					}
+			if (stringHelper[byteInput[position++]]) {
+				byteInput.position = position - 1;
 
-					// which special character is it?
-					if ((char = byteInput[strPosition++]) === 0x75) {// \uxxxx -> utf8 char
-						byteInput.position = strPosition;
-						char = parseInt(byteInput.readUTFBytes(4), 16);
-						// write the new character out as utf8
-						if (char <= 0x7f) {
-							str.writeByte(char);
-						} else if (char < 0x7ff) {
-							str.writeShort(0xC080 |
-								((char << 2) & 0x1f00) | (char & 0x3f));
-						} else {
-							str.writeByte(0xE0 | ((char >> 12) & 0xf));
-							str.writeShort(0x8080 |
-								((char << 2) & 0x3f00) | (char & 0x3f));
-						}
-						position = strPosition = byteInput.position;
-						continue;
-					} else if (!(char = charConvert[char])) {
-						throw new Error(
-							"Unknown escaped character encountered at position " +
-							(strPosition - 1));
-					}
+				// this tight loop is intended for simple strings, parseStringEscaped
+				// will handle the more advanced cases
+				while (stringHelper[byteInput[position++]]) {}
 
-					// write special character to result
-					str.position = str.length;
-					str.writeByte(char);
-					position = strPosition;
+				if (byteInput[position - 1] === 0x5c) {// == \
+					return parseStringEscaped(
+						byteInput.readUTFBytes((position - 1) - byteInput.position));
 				}
-			}
-			if (str.length > 0) {
-				// copy rest of string to result
-				if ((strPosition - 1) > position) {
-					byteInput.position = position;
-					byteInput.readBytes(
-						str, str.position, (strPosition - 1) - position);
-					byteInput.position++;
-				}
-
-				// prepare result
-				position = strPosition;
-				str.position = 0;
-				return str.readUTFBytes(str.length);
+				return byteInput.readUTFBytes((position - 1) - byteInput.position);
+			} else if (byteInput[position - 1] === 0x5c) {// == \
+				return parseStringEscaped("");
 			} else {
-				// copy entire string to result
-				byteInput.position = position;
-				// swap strPosition and position
-				position = strPosition;
-				strPosition = byteInput.position;
-				return byteInput.readUTFBytes((position - 1) - strPosition);
+				return "";
 			}
 		},
 		0x7b: function ():Object {// {
-			if (skipWhitespace() === 0x7d) {// == }
+			while (isWhitespace[byteInput[position]]) {
+				position++;
+			}
+			if (byteInput[position] === 0x7d) {// == }
+				position++;
 				return {};
 			}
 
-			var result:Object = {};
-			var key:String;
-			position--;
+			var result:Object = {}, key:String;
 			do {
 				do {
 					key = parse[byteInput[position++]]();
-					if (byteInput[position] !== 0x3a) {
-						if (skipWhitespace() !== 0x3a) {
+					if (byteInput[position] !== 0x3a) {// != :
+						while (isWhitespace[byteInput[position]]) {
+							position++;
+						}
+						if (byteInput[position++] !== 0x3a) {// != :
 							throw new Error("Expected : at " + (position - 1));
 						}
 					} else {
@@ -200,22 +179,28 @@ function initDecodeJson():Function {
 					}
 					result[key] = parse[byteInput[position++]]();
 				} while (byteInput[position++] === 0x2c);// == ,
-				if (byteInput[position - 1] === 0x7d) {// != }
+				if (byteInput[position - 1] === 0x7d) {// == }
 					return result;
 				}
-			} while (skipWhitespace() === 0x2c);// == ,
+				while (isWhitespace[byteInput[position]]) {
+					position++;
+				}
+			} while (byteInput[position++] === 0x2c);// == ,
 			if (byteInput[position - 1] !== 0x7d) {// != }
 				throw new Error("Expected , or } at " + (position - 1));
 			}
 			return result;
 		},
 		0x5b: function ():Object {// [
-			if (skipWhitespace() === 0x5d) {// == ]
+			while (isWhitespace[byteInput[position]]) {
+				position++;
+			}
+			if (byteInput[position] === 0x5d) {// == ]
+				position++;
 				return [];
 			}
 
 			var result:Array = [];
-			position--;
 			do {
 				do {
 					result[result.length] = parse[byteInput[position++]]();
@@ -224,32 +209,39 @@ function initDecodeJson():Function {
 					return result;
 				}
 				position--;
-			} while (skipWhitespace() === 0x2c);
-			if (byteInput[position - 1] !== 0x5d) {
+				while (isWhitespace[byteInput[position]]) {
+					position++;
+				}
+			} while (byteInput[position++] === 0x2c);// == ,
+			if (byteInput[position - 1] !== 0x5d) {// != ]
 				throw new Error("Expected , or ] at " + (position - 1));
 			}
 			return result;
 		},
 		0x74: function ():Boolean {// t
-			byteInput.position = position - 1;
-			if (byteInput.readInt() === 0x74727565) {// == true
-				position = byteInput.position;
+			if (byteInput[position] === 0x72 &&
+				byteInput[position + 1] === 0x75 &&
+				byteInput[position + 2] === 0x65) {// == rue
+				position += 3;
 				return true;
 			}
 			throw new Error("Expected \"true\" at position " + position);
 		},
 		0x66: function ():Boolean {// f
-			byteInput.position = position;
-			if (byteInput.readInt() === 0x616c7365) {// == alse
-				position = byteInput.position;
+			if (byteInput[position] === 0x61 &&
+				byteInput[position + 1] === 0x6c &&
+				byteInput[position + 2] === 0x73 &&
+				byteInput[position + 3] === 0x65) {// == alse
+				position += 4;
 				return false;
 			}
 			throw new Error("Expected \"false\" at position " + (position - 1));
 		},
 		0x6e: function ():Object {// n
-			byteInput.position = position - 1;
-			if (byteInput.readInt() === 0x6e756c6c) {// == null
-				position = byteInput.position;
+			if (byteInput[position] === 0x75 &&
+				byteInput[position + 1] === 0x6c &&
+				byteInput[position + 2] === 0x6c) {// == ull
+				position += 3;
 				return null;
 			}
 			throw new Error("Expected \"null\" at position " + position);
@@ -290,8 +282,8 @@ function initDecodeJson():Function {
 		} else {
 			throw new Error("Unexpected input <" + input + ">");
 		}
-		byteInput.position = position = 0;
-		byteInput.endian = "bigEndian";
+
+		position = 0;
 
 		try {
 			return parse[byteInput[position++]]();
@@ -301,11 +293,8 @@ function initDecodeJson():Function {
 					String.fromCharCode(byteInput[position - 1]) +
 					" (0x" + byteInput[position - 1].toString(16) + ")" +
 					" at position " + (position - 1) + " (" + e.message + ")";
-			throw e;
 			}
-		} finally {
-			// cleanup
-			str.length = 0;
+			throw e;
 		}
 		return null;
 	}
