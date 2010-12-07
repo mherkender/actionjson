@@ -30,6 +30,7 @@
 		 	debug="true"
 		 	compiler.optimize="true"
 			static-link-runtime-shared-libraries="true">
+			<default-size width="800" height="800" />
 			<compiler.source-path path-element="as3"/>
 			<default-script-limits max-execution-time="60" max-recursion-depth="256"/>
 			<compiler.library-path dir="tools/ason/" append="true">
@@ -53,6 +54,7 @@
 		 	debug="false"
 		 	compiler.optimize="true"
 			static-link-runtime-shared-libraries="true">
+			<default-size width="800" height="800" />
 			<compiler.source-path path-element="as3"/>
 			<default-script-limits max-execution-time="60" max-recursion-depth="256"/>
 			<compiler.library-path dir="tools/ason/" append="true">

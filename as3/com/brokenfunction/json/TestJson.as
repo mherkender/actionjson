@@ -1,5 +1,6 @@
 package com.brokenfunction.json {
 	import flash.display.Sprite;
+	import flash.text.TextField;
 	import flash.utils.ByteArray;
 	import flash.utils.getTimer;
 
@@ -11,7 +12,13 @@ package com.brokenfunction.json {
 	import by.blooddy.crypto.serialization.JSON;
 
 	public class TestJson extends Sprite {
+		private var outputField:TextField = new TextField();
+
 		public function TestJson() {
+			outputField.width = stage.stageWidth;
+			outputField.height = stage.stageHeight;
+			stage.addChild(outputField);
+
 			checkDecode("true");
 			checkDecode("false");
 			checkDecode("null");
@@ -104,7 +111,7 @@ package com.brokenfunction.json {
 				"\\u0019\\u001A\\u001B\\u001C\\u001D\\u001E\\u001F !\\\"#$%&'()*+,-./0123456789" +
 				":;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\\u007F\"");
 
-			trace("All tests passed");
+			altTrace("All tests passed");
 
 			testDecode(
 				"true",
@@ -309,6 +316,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 1000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
+		}
+
+		public function altTrace(message:String):void {
+			trace(message);
+			outputField.appendText(message + "\n");
 		}
 
 		public function checkDecode(input:String, expectedResult:String = "", isNumber:Boolean = false):void {
@@ -557,13 +569,13 @@ package com.brokenfunction.json {
 			asonTest(data);
 			resultAson += getTimer() - time;*/
 
-			trace("");
-			trace("Parsing results for " + data);
-			trace("decodeJson improvement: " + (Math.floor(100 * resultAdobe / resultFast) / 100) + "x");
-			trace("decodeJson improvement (w/o String overhead): " + (Math.floor(100 * resultAdobe / resultFast2) / 100) + "x");
-			trace("JsonDecoderAsync improvement: " + (Math.floor(100 * resultAdobe / resultAsync) / 100) + "x");
-			trace("blooddy_crypto JSON decode improvement: " + (Math.floor(100 * resultAdobe / resultBlooddy) / 100) + "x");
-			//trace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
+			altTrace("");
+			altTrace("Parsing results for " + data);
+			altTrace("decodeJson improvement: " + (Math.floor(100 * resultAdobe / resultFast) / 100) + "x");
+			altTrace("decodeJson improvement (w/o String overhead): " + (Math.floor(100 * resultAdobe / resultFast2) / 100) + "x");
+			altTrace("JsonDecoderAsync improvement: " + (Math.floor(100 * resultAdobe / resultAsync) / 100) + "x");
+			altTrace("blooddy_crypto JSON decode improvement: " + (Math.floor(100 * resultAdobe / resultBlooddy) / 100) + "x");
+			//altTrace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
 		}
 
 		public function testEncode(data:Object, adobeTest:Function, fastTest:Function, asonTest:Function, asyncTest:Function, blooddyTest:Function):void {
@@ -614,12 +626,12 @@ package com.brokenfunction.json {
 			asyncTest(data);
 			resultAsync += getTimer() - time;
 
-			trace("");
-			trace("Parsing results for " + encodeJson(data));
-			trace("encodeJson improvement: " + (Math.floor(100 * resultAdobe / resultFast) / 100) + "x");
-			trace("JsonDecoderAsync improvement: " + (Math.floor(100 * resultAdobe / resultAsync) / 100) + "x");
-			trace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
-			trace("blooddy_crypto JSON encode improvement: " + (Math.floor(100 * resultAdobe / resultBlooddy) / 100) + "x");
+			altTrace("");
+			altTrace("Parsing results for " + encodeJson(data));
+			altTrace("encodeJson improvement: " + (Math.floor(100 * resultAdobe / resultFast) / 100) + "x");
+			altTrace("JsonDecoderAsync improvement: " + (Math.floor(100 * resultAdobe / resultAsync) / 100) + "x");
+			//altTrace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
+			altTrace("blooddy_crypto JSON encode improvement: " + (Math.floor(100 * resultAdobe / resultBlooddy) / 100) + "x");
 		}
 	}
 }
