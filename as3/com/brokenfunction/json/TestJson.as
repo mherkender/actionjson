@@ -598,9 +598,9 @@ package com.brokenfunction.json {
 			asyncTest(data);
 			resultAsync += getTimer() - time;
 
-			time = getTimer();
+			/*time = getTimer();
 			asonTest(data);
-			resultAson += getTimer() - time;
+			resultAson += getTimer() - time;*/
 
 			time = getTimer();
 			fastTest(data);
@@ -618,9 +618,9 @@ package com.brokenfunction.json {
 			blooddyTest(data);
 			resultBlooddy += getTimer() - time;
 
-			time = getTimer();
+			/*time = getTimer();
 			asonTest(data);
-			resultAson += getTimer() - time;
+			resultAson += getTimer() - time;*/
 
 			time = getTimer();
 			asyncTest(data);
