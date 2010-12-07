@@ -31,12 +31,18 @@ package com.brokenfunction.json {
 	public const decodeJson:Function = initDecodeJson();
 }
 
+import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
+
+import apparat.memory.Memory;
 
 function initDecodeJson():Function {
 	var position:uint;
-	var byteInput:ByteArray;
 	var char:uint;
+	var length:uint;
+
+	const byteInput:ByteArray = new ByteArray();
+	byteInput.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 
 	const charConvert:ByteArray = new ByteArray();
 	charConvert.length = 0x100;// fill w/ 0's
@@ -91,22 +97,22 @@ function initDecodeJson():Function {
 			return parseFloat(byteInput.readUTFBytes(byteInput.length));
 		} else {
 			byteInput.position = position - 1;
-			while (isNumberChar[byteInput[position++]]) {}
+			while (isNumberChar[Memory.readUnsignedByte(position++)]) {}
 			return Number(byteInput.readUTFBytes(position-- - byteInput.position - 1));
 		}
 	};
 
 	const parseWhitespace:Function = function():Object {
-		while (isWhitespace[byteInput[position]]) {
+		while (isWhitespace[Memory.readUnsignedByte(position)]) {
 			position++;
 		}
-		return parse[byteInput[position++]]();
+		return parse[Memory.readUnsignedByte(position++)]();
 	};
 
 	const parseStringEscaped:Function = function(result:String):String {
 		do {
 			// which special character is it?
-			if ((char = byteInput[position++]) === 0x75) {// \uxxxx -> utf8 char
+			if ((char = Memory.readUnsignedByte(position++)) === 0x75) {// \uxxxx -> utf8 char
 				byteInput.position = position;
 				char = parseInt(byteInput.readUTFBytes(4), 16);
 				position += 4;
@@ -121,13 +127,13 @@ function initDecodeJson():Function {
 			// write special character to result
 			result += String.fromCharCode(char);
 
-			while (stringHelper[byteInput[position++]]) {}
+			while (stringHelper[Memory.readUnsignedByte(position++)]) {}
 
 			// flush the buffered data to the result
 			if ((position - 1) > byteInput.position) {
 				result += byteInput.readUTFBytes((position - 1) - byteInput.position);
 			}
-		} while (byteInput[position - 1] === 0x5c);// == /
+		} while (Memory.readUnsignedByte(position - 1) === 0x5c);// == /
 
 		return result;
 	}
@@ -136,29 +142,29 @@ function initDecodeJson():Function {
 	// function that parses it
 	const parse:Object = {
 		0x22: function ():String {// "
-			if (stringHelper[byteInput[position++]]) {
+			if (stringHelper[Memory.readUnsignedByte(position++)]) {
 				byteInput.position = position - 1;
 
 				// this tight loop is intended for simple strings, parseStringEscaped
 				// will handle the more advanced cases
-				while (stringHelper[byteInput[position++]]) {}
+				while (stringHelper[Memory.readUnsignedByte(position++)]) {}
 
-				if (byteInput[position - 1] === 0x5c) {// == \
+				if (Memory.readUnsignedByte(position - 1) === 0x5c) {// == \
 					return parseStringEscaped(
 						byteInput.readUTFBytes((position - 1) - byteInput.position));
 				}
 				return byteInput.readUTFBytes((position - 1) - byteInput.position);
-			} else if (byteInput[position - 1] === 0x5c) {// == \
+			} else if (Memory.readUnsignedByte(position - 1) === 0x5c) {// == \
 				return parseStringEscaped("");
 			} else {
 				return "";
 			}
 		},
 		0x7b: function ():Object {// {
-			while (isWhitespace[byteInput[position]]) {
+			while (isWhitespace[Memory.readUnsignedByte(position)]) {
 				position++;
 			}
-			if (byteInput[position] === 0x7d) {// == }
+			if (Memory.readUnsignedByte(position) === 0x7d) {// == }
 				position++;
 				return {};
 			}
@@ -166,36 +172,36 @@ function initDecodeJson():Function {
 			var result:Object = {}, key:String;
 			do {
 				do {
-					key = parse[byteInput[position++]]();
-					if (byteInput[position] !== 0x3a) {// != :
-						while (isWhitespace[byteInput[position]]) {
+					key = parse[Memory.readUnsignedByte(position++)]();
+					if (Memory.readUnsignedByte(position) !== 0x3a) {// != :
+						while (isWhitespace[Memory.readUnsignedByte(position)]) {
 							position++;
 						}
-						if (byteInput[position++] !== 0x3a) {// != :
+						if (Memory.readUnsignedByte(position++) !== 0x3a) {// != :
 							throw new Error("Expected : at " + (position - 1));
 						}
 					} else {
 						position++;
 					}
-					result[key] = parse[byteInput[position++]]();
-				} while (byteInput[position++] === 0x2c);// == ,
-				if (byteInput[position - 1] === 0x7d) {// == }
+					result[key] = parse[Memory.readUnsignedByte(position++)]();
+				} while (Memory.readUnsignedByte(position++) === 0x2c);// == ,
+				if (Memory.readUnsignedByte(position - 1) === 0x7d) {// == }
 					return result;
 				}
-				while (isWhitespace[byteInput[position]]) {
+				while (isWhitespace[Memory.readUnsignedByte(position)]) {
 					position++;
 				}
-			} while (byteInput[position++] === 0x2c);// == ,
-			if (byteInput[position - 1] !== 0x7d) {// != }
+			} while (Memory.readUnsignedByte(position++) === 0x2c);// == ,
+			if (Memory.readUnsignedByte(position - 1) !== 0x7d) {// != }
 				throw new Error("Expected , or } at " + (position - 1));
 			}
 			return result;
 		},
 		0x5b: function ():Object {// [
-			while (isWhitespace[byteInput[position]]) {
+			while (isWhitespace[Memory.readUnsignedByte(position)]) {
 				position++;
 			}
-			if (byteInput[position] === 0x5d) {// == ]
+			if (Memory.readUnsignedByte(position) === 0x5d) {// == ]
 				position++;
 				return [];
 			}
@@ -203,44 +209,44 @@ function initDecodeJson():Function {
 			var result:Array = [];
 			do {
 				do {
-					result[result.length] = parse[byteInput[position++]]();
-				} while (byteInput[position++] === 0x2c);// == ,
-				if (byteInput[position - 1] === 0x5d) {// != ]
+					result[result.length] = parse[Memory.readUnsignedByte(position++)]();
+				} while (Memory.readUnsignedByte(position++) === 0x2c);// == ,
+				if (Memory.readUnsignedByte(position - 1) === 0x5d) {// != ]
 					return result;
 				}
 				position--;
-				while (isWhitespace[byteInput[position]]) {
+				while (isWhitespace[Memory.readUnsignedByte(position)]) {
 					position++;
 				}
-			} while (byteInput[position++] === 0x2c);// == ,
-			if (byteInput[position - 1] !== 0x5d) {// != ]
+			} while (Memory.readUnsignedByte(position++) === 0x2c);// == ,
+			if (Memory.readUnsignedByte(position - 1) !== 0x5d) {// != ]
 				throw new Error("Expected , or ] at " + (position - 1));
 			}
 			return result;
 		},
 		0x74: function ():Boolean {// t
-			if (byteInput[position] === 0x72 &&
-				byteInput[position + 1] === 0x75 &&
-				byteInput[position + 2] === 0x65) {// == rue
+			if (Memory.readUnsignedByte(position) === 0x72 &&
+				Memory.readUnsignedByte(position + 1) === 0x75 &&
+				Memory.readUnsignedByte(position + 2) === 0x65) {// == rue
 				position += 3;
 				return true;
 			}
 			throw new Error("Expected \"true\" at position " + position);
 		},
 		0x66: function ():Boolean {// f
-			if (byteInput[position] === 0x61 &&
-				byteInput[position + 1] === 0x6c &&
-				byteInput[position + 2] === 0x73 &&
-				byteInput[position + 3] === 0x65) {// == alse
+			if (Memory.readUnsignedByte(position) === 0x61 &&
+				Memory.readUnsignedByte(position + 1) === 0x6c &&
+				Memory.readUnsignedByte(position + 2) === 0x73 &&
+				Memory.readUnsignedByte(position + 3) === 0x65) {// == alse
 				position += 4;
 				return false;
 			}
 			throw new Error("Expected \"false\" at position " + (position - 1));
 		},
 		0x6e: function ():Object {// n
-			if (byteInput[position] === 0x75 &&
-				byteInput[position + 1] === 0x6c &&
-				byteInput[position + 2] === 0x6c) {// == ull
+			if (Memory.readUnsignedByte(position) === 0x75 &&
+				Memory.readUnsignedByte(position + 1) === 0x6c &&
+				Memory.readUnsignedByte(position + 2) === 0x6c) {// == ull
 				position += 3;
 				return null;
 			}
@@ -275,23 +281,27 @@ function initDecodeJson():Function {
 	return function (input:*):Object {
 		// prepare the input
 		if (input is String) {
-			byteInput = new ByteArray();
+			byteInput.position = 0;
 			byteInput.writeUTFBytes(input as String);
 		} else if (input is ByteArray) {
-			byteInput = input as ByteArray;
+			(input as ByteArray).position = 0;
+			(input as ByteArray).readBytes(byteInput, 0, 0);
 		} else {
 			throw new Error("Unexpected input <" + input + ">");
 		}
 
+		length = byteInput.position;
+		byteInput.writeByte(0);// terminate the string
 		position = 0;
+		Memory.select(byteInput);
 
 		try {
-			return parse[byteInput[position++]]();
+			return parse[Memory.readUnsignedByte(position++)]();
 		} catch (e:TypeError) {
-			if (position - 1 < byteInput.length) {
+			if (position - 1 < length) {
 				e.message = "Unexpected character " +
-					String.fromCharCode(byteInput[position - 1]) +
-					" (0x" + byteInput[position - 1].toString(16) + ")" +
+					String.fromCharCode(Memory.readUnsignedByte(position - 1)) +
+					" (0x" + Memory.readUnsignedByte(position - 1).toString(16) + ")" +
 					" at position " + (position - 1) + " (" + e.message + ")";
 			}
 			throw e;
