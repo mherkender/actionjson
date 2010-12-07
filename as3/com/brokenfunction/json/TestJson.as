@@ -8,6 +8,8 @@ package com.brokenfunction.json {
 
 	import com.rational.serialization.json.JSON;
 
+	import by.blooddy.crypto.serialization.JSON;
+
 	public class TestJson extends Sprite {
 		public function TestJson() {
 			checkDecode("true");
@@ -115,7 +117,9 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 30000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 30000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 30000; i++) com.rational.serialization.json.JSON.decode(data);},
+				function (data:String):void {
+					for (var i:int = 0; i < 30000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
 			);
 			testDecode(
 				"\"test string\"",
@@ -128,7 +132,9 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 30000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 30000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 30000; i++) com.rational.serialization.json.JSON.decode(data);},
+				function (data:String):void {
+					for (var i:int = 0; i < 30000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
 			);
 			testDecode(
 				"-123e5",
@@ -141,7 +147,9 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 30000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 30000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 30000; i++) com.rational.serialization.json.JSON.decode(data);},
+				function (data:String):void {
+					for (var i:int = 0; i < 30000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
 			);
 			testDecode(
 				"[1,2,3]",
@@ -154,7 +162,9 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 10000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 10000; i++) com.rational.serialization.json.JSON.decode(data);},
+				function (data:String):void {
+					for (var i:int = 0; i < 10000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
 			);
 			testDecode(
 				"{\"test\":\"sdfsdf\",\"test2\":\"sdfsdf\"}",
@@ -167,7 +177,9 @@ package com.brokenfunction.json {
 				function (data:ByteArray):void {
 					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 10000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 10000; i++) com.rational.serialization.json.JSON.decode(data);},
+				function (data:String):void {
+					for (var i:int = 0; i < 10000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
 			);
 			testDecode(
 				encodeJson({
@@ -183,15 +195,17 @@ package com.brokenfunction.json {
 						{a: "test", b: "test"},{a: "test", b: "test"}]
 				}),
 				function (data:String):void {
-					for (var i:int = 0; i < 1000; i++) (new JSONDecoder(data)).getValue();},
+					for (var i:int = 0; i < 10000; i++) (new JSONDecoder(data)).getValue();},
 				function (data:String):void {
-					for (var i:int = 0; i < 1000; i++) decodeJson(data);},
+					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 1000; i++) (new JsonDecoderAsync(data)).result;},
+					for (var i:int = 0; i < 10000; i++) (new JsonDecoderAsync(data)).result;},
 				function (data:ByteArray):void {
-					for (var i:int = 0; i < 1000; i++) decodeJson(data);},
+					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 1000; i++) JSON.decode(data);}
+					for (var i:int = 0; i < 10000; i++) com.rational.serialization.json.JSON.decode(data);},
+				function (data:String):void {
+					for (var i:int = 0; i < 10000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
 			);
 			testEncode(
 				true,
@@ -200,9 +214,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) JSON.encode(data);},
+					for (var i:int = 0; i < 100000; i++) com.rational.serialization.json.JSON.encode(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;}
+					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;},
+				function (data:Object):void {
+					for (var i:int = 0; i < 100000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
 			testEncode(
 				-123e4,
@@ -211,9 +227,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) JSON.encode(data);},
+					for (var i:int = 0; i < 100000; i++) com.rational.serialization.json.JSON.encode(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;}
+					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;},
+				function (data:Object):void {
+					for (var i:int = 0; i < 100000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
 			testEncode(
 				"this is a string",
@@ -222,9 +240,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 100000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) JSON.encode(data);},
+					for (var i:int = 0; i < 100000; i++) com.rational.serialization.json.JSON.encode(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;}
+					for (var i:int = 0; i < 100000; i++) (new JsonEncoderAsync(data)).result;},
+				function (data:Object):void {
+					for (var i:int = 0; i < 100000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
 			testEncode(
 				"this is a much longer string to understand the effect the size of the string has on the results",
@@ -233,9 +253,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 10000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 10000; i++) JSON.encode(data);},
+					for (var i:int = 0; i < 10000; i++) com.rational.serialization.json.JSON.encode(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 10000; i++) (new JsonEncoderAsync(data)).result;}
+					for (var i:int = 0; i < 10000; i++) (new JsonEncoderAsync(data)).result;},
+				function (data:Object):void {
+					for (var i:int = 0; i < 10000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
 			testEncode(
 				[Number.MIN_VALUE, "test", null],
@@ -244,9 +266,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 10000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 10000; i++) JSON.encode(data);},
+					for (var i:int = 0; i < 10000; i++) com.rational.serialization.json.JSON.encode(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 10000; i++) (new JsonEncoderAsync(data)).result;}
+					for (var i:int = 0; i < 10000; i++) (new JsonEncoderAsync(data)).result;},
+				function (data:Object):void {
+					for (var i:int = 0; i < 10000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
 			testEncode(
 				{a:12345, b:null},
@@ -255,9 +279,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 30000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) JSON.encode(data);},
+					for (var i:int = 0; i < 30000; i++) com.rational.serialization.json.JSON.encode(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 30000; i++) (new JsonEncoderAsync(data)).result;}
+					for (var i:int = 0; i < 30000; i++) (new JsonEncoderAsync(data)).result;},
+				function (data:Object):void {
+					for (var i:int = 0; i < 30000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
 			testEncode(
 				{
@@ -277,9 +303,11 @@ package com.brokenfunction.json {
 				function (data:Object):void {
 					for (var i:int = 0; i < 1000; i++) encodeJson(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 1000; i++) JSON.encode(data);},
+					for (var i:int = 0; i < 1000; i++) com.rational.serialization.json.JSON.encode(data);},
 				function (data:Object):void {
-					for (var i:int = 0; i < 1000; i++) (new JsonEncoderAsync(data)).result;}
+					for (var i:int = 0; i < 1000; i++) (new JsonEncoderAsync(data)).result;},
+				function (data:Object):void {
+					for (var i:int = 0; i < 1000; i++) by.blooddy.crypto.serialization.JSON.encode(data);}
 			);
 		}
 
@@ -469,13 +497,14 @@ package com.brokenfunction.json {
 			}
 		}
 
-		public function testDecode(data:String, adobeTest:Function, fastTest:Function, asyncTest:Function, fastTest2:Function, asonTest:Function):void {
+		public function testDecode(data:String, adobeTest:Function, fastTest:Function, asyncTest:Function, fastTest2:Function, asonTest:Function, blooddyTest:Function):void {
 			var time:uint;
 			var resultAdobe:uint = 0;
 			var resultFast:uint = 0;
 			var resultAsync:uint = 0;
 			var resultFast2:uint = 0;
 			var resultAson:uint = 0;
+			var resultBlooddy:uint = 0;
 
 			var dataBytes:ByteArray = new ByteArray();
 			dataBytes.writeUTFBytes(data);
@@ -487,6 +516,10 @@ package com.brokenfunction.json {
 			time = getTimer();
 			fastTest(data);
 			resultFast += getTimer() - time;
+
+			time = getTimer();
+			blooddyTest(data);
+			resultBlooddy += getTimer() - time;
 
 			time = getTimer();
 			asyncTest(data);
@@ -503,6 +536,10 @@ package com.brokenfunction.json {
 			time = getTimer();
 			asyncTest(data);
 			resultAsync += getTimer() - time;
+
+			time = getTimer();
+			blooddyTest(data);
+			resultBlooddy += getTimer() - time;
 
 			time = getTimer();
 			fastTest(data);
@@ -525,19 +562,25 @@ package com.brokenfunction.json {
 			trace("decodeJson improvement: " + (Math.floor(100 * resultAdobe / resultFast) / 100) + "x");
 			trace("decodeJson improvement (w/o String overhead): " + (Math.floor(100 * resultAdobe / resultFast2) / 100) + "x");
 			trace("JsonDecoderAsync improvement: " + (Math.floor(100 * resultAdobe / resultAsync) / 100) + "x");
+			trace("blooddy_crypto JSON decode improvement: " + (Math.floor(100 * resultAdobe / resultBlooddy) / 100) + "x");
 			//trace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
 		}
 
-		public function testEncode(data:Object, adobeTest:Function, fastTest:Function, asonTest:Function, asyncTest:Function):void {
+		public function testEncode(data:Object, adobeTest:Function, fastTest:Function, asonTest:Function, asyncTest:Function, blooddyTest:Function):void {
 			var time:uint;
 			var resultAdobe:uint = 0;
 			var resultFast:uint = 0;
 			var resultAson:uint = 0;
 			var resultAsync:uint = 0;
+			var resultBlooddy:uint = 0;
 
 			time = getTimer();
 			adobeTest(data);
 			resultAdobe += getTimer() - time;
+
+			time = getTimer();
+			blooddyTest(data);
+			resultBlooddy += getTimer() - time;
 
 			time = getTimer();
 			asyncTest(data);
@@ -558,6 +601,10 @@ package com.brokenfunction.json {
 			time = getTimer();
 			fastTest(data);
 			resultFast += getTimer() - time;
+
+			time = getTimer();
+			blooddyTest(data);
+			resultBlooddy += getTimer() - time;
 
 			time = getTimer();
 			asonTest(data);
@@ -572,6 +619,7 @@ package com.brokenfunction.json {
 			trace("encodeJson improvement: " + (Math.floor(100 * resultAdobe / resultFast) / 100) + "x");
 			trace("JsonDecoderAsync improvement: " + (Math.floor(100 * resultAdobe / resultAsync) / 100) + "x");
 			trace("ason improvement: " + (Math.floor(100 * resultAdobe / resultAson) / 100) + "x");
+			trace("blooddy_crypto JSON encode improvement: " + (Math.floor(100 * resultAdobe / resultBlooddy) / 100) + "x");
 		}
 	}
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="JSON Tests" basedir="../../../../" default="build">
+<project name="JSON Tests" basedir="../../../../" default="build-tdsi">
 	<target name="flex-tasks">
 		<!-- Check for FLEX_HOME -->
 		<property environment="env"/>
@@ -21,7 +21,7 @@
 		<taskdef resource="flexTasks.tasks" classpath="${flex.antTasks}"/>
 	</target>
 
-	<target name="build" depends="flex-tasks" description="Build">
+	<target name="build-debug" depends="flex-tasks" description="Build">
 		<mxmlc fork="true"
 			file="as3/com/brokenfunction/json/TestJson.as"
 			output="as3/com/brokenfunction/json/bin/testjson.swf"
@@ -35,6 +35,46 @@
 			<compiler.library-path dir="tools/ason/" append="true">
 				<include name="ason-1.1.2.swc" />
 			</compiler.library-path>
+			<compiler.library-path dir="tools/blooddy_crypto/" append="true">
+				<include name="blooddy_crypto.swc" />
+			</compiler.library-path>
+			<compiler.library-path dir="tools/apparat/" append="true">
+				<include name="*.swc" />
+			</compiler.library-path>
 		</mxmlc>
+	</target>
+
+	<target name="build" depends="flex-tasks" description="Build">
+		<mxmlc fork="true"
+			file="as3/com/brokenfunction/json/TestJson.as"
+			output="as3/com/brokenfunction/json/bin/testjson.swf"
+			link-report="as3/com/brokenfunction/json/bin/testjson-report.xml"
+			use-network="false"
+		 	debug="false"
+		 	compiler.optimize="true"
+			static-link-runtime-shared-libraries="true">
+			<compiler.source-path path-element="as3"/>
+			<default-script-limits max-execution-time="60" max-recursion-depth="256"/>
+			<compiler.library-path dir="tools/ason/" append="true">
+				<include name="ason-1.1.2.swc" />
+			</compiler.library-path>
+			<compiler.library-path dir="tools/blooddy_crypto/" append="true">
+				<include name="blooddy_crypto.swc" />
+			</compiler.library-path>
+			<compiler.library-path dir="tools/apparat/" append="true">
+				<include name="*.swc" />
+			</compiler.library-path>
+		</mxmlc>
+	</target>
+
+	<target name="build-tdsi" depends="build" description="Run tdsi optimizations">
+		<exec executable="tools/apparat/tdsi" osfamily="Unix" failonerror="true">
+			<arg value="-i"/><arg value="as3/com/brokenfunction/json/bin/testjson.swf"/>
+			<arg value="-o"/><arg value="as3/com/brokenfunction/json/bin/testjson-tdsi.swf"/>
+			<arg value="-a"/><arg value="true"/><!-- inline alchemy operations -->
+			<arg value="-e"/><arg value="true"/><!-- inline expansion -->
+			<arg value="-m"/><arg value="true"/><!-- macro expansion -->
+			<arg value="-s"/><arg value="true"/><!-- asm expansion -->
+		</exec>
 	</target>
 </project>
