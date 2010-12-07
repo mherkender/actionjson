@@ -195,17 +195,17 @@ package com.brokenfunction.json {
 						{a: "test", b: "test"},{a: "test", b: "test"}]
 				}),
 				function (data:String):void {
-					for (var i:int = 0; i < 10000; i++) (new JSONDecoder(data)).getValue();},
+					for (var i:int = 0; i < 1000; i++) (new JSONDecoder(data)).getValue();},
 				function (data:String):void {
-					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
+					for (var i:int = 0; i < 1000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 10000; i++) (new JsonDecoderAsync(data)).result;},
+					for (var i:int = 0; i < 1000; i++) (new JsonDecoderAsync(data)).result;},
 				function (data:ByteArray):void {
-					for (var i:int = 0; i < 10000; i++) decodeJson(data);},
+					for (var i:int = 0; i < 1000; i++) decodeJson(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 10000; i++) com.rational.serialization.json.JSON.decode(data);},
+					for (var i:int = 0; i < 1000; i++) com.rational.serialization.json.JSON.decode(data);},
 				function (data:String):void {
-					for (var i:int = 0; i < 10000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
+					for (var i:int = 0; i < 1000; i++) by.blooddy.crypto.serialization.JSON.decode(data);}
 			);
 			testEncode(
 				true,
