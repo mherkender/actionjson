@@ -74,7 +74,7 @@ function initDecodeJson():Function {
 		i = 0;
 		j = 0;
 		strLen = tempBytes.length;
-		strloop:while (j < strLen) {
+		while (j < strLen) {
 			char = charConvert[tempBytes[j++]];
 			if (char > 0x100) {
 				if (j - 1 > i) {
