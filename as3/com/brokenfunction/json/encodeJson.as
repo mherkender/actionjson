@@ -182,8 +182,10 @@ function initDecodeJson():Function {
 						return String(input);
 					case "boolean":
 						return input ? "true" : "false";
-					default:
+					case "undefined":
 						return "null";
+					default:
+						throw new Error("Unexpected type encountered");
 				}
 			}
 		} catch (e:TypeError) {
