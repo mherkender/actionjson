@@ -26,6 +26,7 @@ package com.brokenfunction.json {
 
 		private var _output:IDataOutput;
 		private var _byteOutput:ByteArray;
+		private var _blockNonFiniteNumbers:Boolean;
 		private var _tempBytes:ByteArray = new ByteArray();
 
 		/**
@@ -41,7 +42,9 @@ package com.brokenfunction.json {
 		 * @parameter writeTo An optional IDataOutput output stream to write data to.
 		 * @see http://json.org/
 		 */
-		public function JsonEncoderAsync(input:*, writeTo:IDataOutput = null):void {
+		public function JsonEncoderAsync(input:*, writeTo:IDataOutput = null, strictNumberParsing:Boolean = false):void {
+			_blockNonFiniteNumbers = strictNumberParsing;
+
 			// prepare the input
 			if (writeTo) {
 				_output = writeTo;
@@ -134,6 +137,9 @@ package com.brokenfunction.json {
 					parseString(input);
 					return;
 				case "number":
+					if (_blockNonFiniteNumbers && !isFinite(input as Number)) {
+						throw new Error("Number " + input + " is not encodable");
+					}
 					_output.writeUTFBytes(String(input));
 					return;
 				case "boolean":
