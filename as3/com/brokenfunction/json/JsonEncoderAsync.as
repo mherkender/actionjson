@@ -56,7 +56,19 @@ package com.brokenfunction.json {
 			// conversions for escaped characters
 			if (!_charConvert) {
 				_charConvert = new Array(0x100);
-				for (var j:int = 0; j < 0x100; j++) {
+				for (var j:int = 0; j < 0xa; j++) {
+					_charConvert[j] = (j + 0x30) | 0x30303000;// 000[0-9]
+				}
+				for (; j < 0x10; j++) {
+					_charConvert[j] = (j + 0x37) | 0x30303000;// 000[A-F]
+				}
+				for (;j < 0x1a; j++) {
+					_charConvert[j] = (j + 0x20) | 0x30303100;// 00[1][0-9]
+				}
+				for (;j < 0x20; j++) {
+					_charConvert[j] = (j + 0x27) | 0x30303100;// 00[1][A-F]
+				}
+				for (;j < 0x100; j++) {
 					_charConvert[j] = j;
 				}
 				_charConvert[0xa] = 0x5c6e; // \n
@@ -69,6 +81,7 @@ package com.brokenfunction.json {
 				_charConvert[0x5c] = 0x5c5c; // \\
 				// not necessary for valid json
 				//_charConvert[0x2f] = 0x5c2f; // \/
+				_charConvert[0x7f] = 0x30303746; // 007F
 			}
 
 			// the initial stack function
@@ -248,7 +261,12 @@ package com.brokenfunction.json {
 						// flush buffered string
 						_output.writeBytes(_tempBytes, i, (j - 1) - i);
 					}
-					_output.writeShort(char);
+					if (char > 0x10000) {// \uxxxx (control character)
+						_output.writeShort(0x5c75);// \u
+						_output.writeUnsignedInt(char);
+					} else {
+						_output.writeShort(char);
+					}
 					i = j;
 				}
 			}

@@ -39,7 +39,19 @@ function initDecodeJson():Function {
 	var blockNonFiniteNumbers:Boolean;
 
 	const charConvert:Array = new Array(0x100);
-	for (j = 0; j < 0x100; j++) {
+	for (j = 0; j < 0xa; j++) {
+		charConvert[j] = (j + 0x30) | 0x30303000;// 000[0-9]
+	}
+	for (; j < 0x10; j++) {
+		charConvert[j] = (j + 0x37) | 0x30303000;// 000[A-F]
+	}
+	for (;j < 0x1a; j++) {
+		charConvert[j] = (j + 0x20) | 0x30303100;// 00[1][0-9]
+	}
+	for (;j < 0x20; j++) {
+		charConvert[j] = (j + 0x27) | 0x30303100;// 00[1][A-F]
+	}
+	for (;j < 0x100; j++) {
 		charConvert[j] = j;
 	}
 	charConvert[0xa] = 0x5c6e; // \n
@@ -52,6 +64,7 @@ function initDecodeJson():Function {
 	charConvert[0x5c] = 0x5c5c; // \\
 	// not necessary for valid json
 	//charConvert[0x2f] = 0x5c2f; // \/
+	charConvert[0x7f] = 0x30303746; // 007F
 
 	const parseArray:Function = function (data:Array):void {
 		result.writeByte(0x5b);// [
@@ -82,7 +95,12 @@ function initDecodeJson():Function {
 					// flush buffered string
 					result.writeBytes(tempBytes, i, (j - 1) - i);
 				}
-				result.writeShort(char);
+				if (char > 0x10000) {// \uxxxx (control character)
+					result.writeShort(0x5c75);// \u
+					result.writeUnsignedInt(char);
+				} else {
+					result.writeShort(char);
+				}
 				i = j;
 			}
 		}
