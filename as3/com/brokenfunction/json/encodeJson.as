@@ -36,6 +36,7 @@ function initDecodeJson():Function {
 	var result:IDataOutput;
 	var i:int, j:int, strLen:int, str:String, char:int;
 	var tempBytes:ByteArray = new ByteArray();
+	var blockNonFiniteNumbers:Boolean;
 
 	const charConvert:Array = new Array(0x100);
 	for (j = 0; j < 0x100; j++) {
@@ -118,6 +119,9 @@ function initDecodeJson():Function {
 		},
 		"string": parseString,
 		"number": function (data:Number):void {
+			if (blockNonFiniteNumbers && !isFinite(data)) {
+				throw new Error("Number " + data + " is not encodable");
+			}
 			result.writeUTFBytes(String(data));
 		},
 		"boolean": function (data:Boolean):void {
@@ -133,9 +137,10 @@ function initDecodeJson():Function {
 		}
 	};
 
-	return function (input:Object, writeTo:IDataOutput = null):String {
+	return function (input:Object, writeTo:IDataOutput = null, strictNumberSupport:Boolean = false):String {
 		// prepare the input
 		var byteOutput:ByteArray;
+		blockNonFiniteNumbers = strictNumberSupport;
 		try {
 			if (writeTo) {
 				result = writeTo;
@@ -153,6 +158,9 @@ function initDecodeJson():Function {
 						byteOutput.position = 0;
 						return byteOutput.readUTFBytes(byteOutput.length);
 					case "number":
+						if (blockNonFiniteNumbers && !isFinite(input as Number)) {
+							throw new Error("Number " + input + " is not encodable");
+						}
 						return String(input);
 					case "boolean":
 						return input ? "true" : "false";
