@@ -20,6 +20,8 @@ package com.brokenfunction.json {
 	 * This will either return the result as a string, or write it directly to
 	 * an IDataOutput output stream if the "writeTo" argument is supplied.
 	 *
+	 * Warning: Vectors are not supported, they will be encoded as empty objects.
+	 *
 	 * @parameter input An object to convert to JSON.
 	 * @parameter writeTo An optional IDataOutput output stream to write data to.
 	 * @return A valid JSON-encoded string if writeTo is not specified, otherwise

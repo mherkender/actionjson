@@ -110,6 +110,8 @@ package com.brokenfunction.json {
 		 * Continue processing data. Warning, there are currently no limits placed
 		 * on string processing.
 		 *
+		 * Warning: Vectors are not supported, they will be encoded as empty objects.
+		 *
 		 * @property limit Stop processing after this many chunks of data. Because
 		 * of limitations in Flash, it isn't very strict, and depends on the data
 		 * being processed. Find a number that works. If zero, process will continue
