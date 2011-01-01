@@ -13,3 +13,7 @@ Still around 2x faster than as3corelib's JSON decoder
 JsonEncoderAsync - An asynchronous JSON encoder
 Encodes JSON in chunks, for large objects that need to be encoded over time
 Sadly, about the same speed as as3corelib's JSON encoder
+
+Download the library as a swc here:
+http://github.com/mherkender/actionjson/raw/apparatmemory/actionjson.swc
+(includes optimizations from the apparatmemory branch)
