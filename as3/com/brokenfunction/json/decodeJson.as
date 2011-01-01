@@ -41,6 +41,7 @@ function initDecodeJson():Function {
 	var char:uint;
 	var length:uint;
 
+	const currentDomain:ApplicationDomain = ApplicationDomain.currentDomain
 	const byteInput:ByteArray = new ByteArray();
 	byteInput.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 
@@ -293,7 +294,9 @@ function initDecodeJson():Function {
 		length = byteInput.position;
 		byteInput.writeByte(0);// terminate the string
 		position = 0;
-		Memory.select(byteInput);
+		
+		var oldMemory:ByteArray = currentDomain.domainMemory;
+		currentDomain.domainMemory = byteInput;
 
 		try {
 			return parse[Memory.readUnsignedByte(position++)]();
@@ -305,6 +308,9 @@ function initDecodeJson():Function {
 					" at position " + (position - 1) + " (" + e.message + ")";
 			}
 			throw e;
+		} finally {
+			currentDomain.domainMemory = oldMemory;
+			byteInput.length = ApplicationDomain.MIN_DOMAIN_MEMORY_LENGTH;
 		}
 		return null;
 	}
