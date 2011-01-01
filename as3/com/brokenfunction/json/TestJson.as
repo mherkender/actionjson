@@ -541,9 +541,9 @@ package com.brokenfunction.json {
 			asonTest(data);
 			resultAson += getTimer() - time;*/
 
-			/*time = getTimer();
+			time = getTimer();
 			fastTest2(dataBytes);
-			resultFast2 += getTimer() - time;*/
+			resultFast2 += getTimer() - time;
 
 			time = getTimer();
 			asyncTest(data);
@@ -557,9 +557,9 @@ package com.brokenfunction.json {
 			fastTest(data);
 			resultFast += getTimer() - time;
 
-			/*time = getTimer();
+			time = getTimer();
 			fastTest2(dataBytes);
-			resultFast2 += getTimer() - time;*/
+			resultFast2 += getTimer() - time;
 
 			time = getTimer();
 			adobeTest(data);
