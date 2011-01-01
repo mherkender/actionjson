@@ -285,8 +285,8 @@ function initDecodeJson():Function {
 			byteInput.position = 0;
 			byteInput.writeUTFBytes(input as String);
 		} else if (input is ByteArray) {
-			(input as ByteArray).position = 0;
-			(input as ByteArray).readBytes(byteInput, 0, 0);
+			byteInput.position = 0;
+			byteInput.writeBytes(input as ByteArray);
 		} else {
 			throw new Error("Unexpected input <" + input + ">");
 		}
