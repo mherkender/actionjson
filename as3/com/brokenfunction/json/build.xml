@@ -87,6 +87,7 @@
 		 	debug="false"
 		 	compiler.optimize="true"
 			static-link-runtime-shared-libraries="true">
+			<externs>apparat.memory.Memory</externs>
 			<compiler.source-path path-element="as3"/>
 			<compiler.library-path dir="tools/apparat/" append="true">
 				<include name="*.swc" />
