@@ -21,7 +21,7 @@
 		<taskdef resource="flexTasks.tasks" classpath="${flex.antTasks}"/>
 	</target>
 
-	<target name="build-debug" depends="flex-tasks" description="Build">
+	<target name="build-debug" depends="flex-tasks, build-actionjsonswc-tdsi" description="Build">
 		<mxmlc fork="true"
 			file="as3/com/brokenfunction/json/TestJson.as"
 			output="as3/com/brokenfunction/json/bin/testjson.swf"
@@ -33,19 +33,19 @@
 			<default-size width="800" height="800" />
 			<compiler.source-path path-element="as3"/>
 			<default-script-limits max-execution-time="60" max-recursion-depth="256"/>
+			<compiler.library-path dir="." append="true">
+				<include name="actionjson.swc" />
+			</compiler.library-path>
 			<compiler.library-path dir="tools/ason/" append="true">
 				<include name="ason-1.1.2.swc" />
 			</compiler.library-path>
 			<compiler.library-path dir="tools/blooddy_crypto/" append="true">
 				<include name="blooddy_crypto.swc" />
 			</compiler.library-path>
-			<compiler.library-path dir="tools/apparat/" append="true">
-				<include name="*.swc" />
-			</compiler.library-path>
 		</mxmlc>
 	</target>
 
-	<target name="build" depends="flex-tasks" description="Build">
+	<target name="build" depends="flex-tasks, build-actionjsonswc-tdsi" description="Build">
 		<mxmlc fork="true"
 			file="as3/com/brokenfunction/json/TestJson.as"
 			output="as3/com/brokenfunction/json/bin/testjson.swf"
@@ -57,14 +57,14 @@
 			<default-size width="800" height="800" />
 			<compiler.source-path path-element="as3"/>
 			<default-script-limits max-execution-time="60" max-recursion-depth="256"/>
+			<compiler.library-path dir="." append="true">
+				<include name="actionjson.swc" />
+			</compiler.library-path>
 			<compiler.library-path dir="tools/ason/" append="true">
 				<include name="ason-1.1.2.swc" />
 			</compiler.library-path>
 			<compiler.library-path dir="tools/blooddy_crypto/" append="true">
 				<include name="blooddy_crypto.swc" />
-			</compiler.library-path>
-			<compiler.library-path dir="tools/apparat/" append="true">
-				<include name="*.swc" />
 			</compiler.library-path>
 		</mxmlc>
 	</target>
@@ -78,5 +78,45 @@
 			<arg value="-m"/><arg value="true"/><!-- macro expansion -->
 			<arg value="-s"/><arg value="true"/><!-- asm expansion -->
 		</exec>
+	</target>
+
+	<target name="build-actionjsonswc" depends="flex-tasks" description="Build actionjson.swc">
+		<compc fork="true"
+			output="as3/com/brokenfunction/json/bin/actionjson-unoptimized.swc"
+			include-classes="com.brokenfunction.json.decodeJson com.brokenfunction.json.encodeJson com.brokenfunction.json.JsonDecoderAsync com.brokenfunction.json.JsonEncoderAsync"
+		 	debug="false"
+		 	compiler.optimize="true"
+			static-link-runtime-shared-libraries="true">
+			<compiler.source-path path-element="as3"/>
+			<compiler.library-path dir="tools/apparat/" append="true">
+				<include name="*.swc" />
+			</compiler.library-path>
+		</compc>
+	</target>
+
+	<target name="build-actionjsonswc-tdsi" depends="build-actionjsonswc" description="Build tdsi-optimized actionjson.swc">
+		<unzip
+			src="as3/com/brokenfunction/json/bin/actionjson-unoptimized.swc"
+			dest="as3/com/brokenfunction/json/bin/"
+			overwrite="true" stripAbsolutePathSpec="true">
+			<fileset dir=".">
+				<include name="library.swf"/>
+				<exclude name="catalog.xml"/>
+			</fileset>
+		</unzip>
+		<exec executable="tools/apparat/tdsi" osfamily="Unix" failonerror="true">
+			<arg value="-i"/><arg value="as3/com/brokenfunction/json/bin/library.swf"/>
+			<arg value="-o"/><arg value="as3/com/brokenfunction/json/bin/library.swf"/>
+			<arg value="-a"/><arg value="true"/><!-- inline alchemy operations -->
+			<arg value="-e"/><arg value="true"/><!-- inline expansion -->
+			<arg value="-m"/><arg value="true"/><!-- macro expansion -->
+			<arg value="-s"/><arg value="true"/><!-- asm expansion -->
+		</exec>
+		<zip
+			destfile="actionjson.swc"
+			compress="false">
+			<zipfileset dir="as3/com/brokenfunction/json/bin/" includes="library.swf"/>
+			<zipfileset dir="as3/com/brokenfunction/json/bin/" includes="catalog.xml"/>
+		</zip>
 	</target>
 </project>
