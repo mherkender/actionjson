@@ -110,6 +110,9 @@ package com.brokenfunction.json {
 				"\\u000E\\u000F\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017\\u0018" +
 				"\\u0019\\u001A\\u001B\\u001C\\u001D\\u001E\\u001F !\\\"#$%&'()*+,-./0123456789" +
 				":;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\\u007F\"");
+			checkEncode(<xml/>, "\"<xml/>\"");
+			checkEncode(<test alt="hello"><ol><li alt="world&gt;&lt;">world&gt;&lt;</li></ol></test>, "\"<test alt=\\\"hello\\\">\\n  <ol>\\n    <li alt=\\\"world>&lt;\\\">world&gt;&lt;</li>\\n  </ol>\\n</test>\"");
+			checkEncode(<li alt="world&gt;&lt;"/>.attribute("alt"), "\"world>&lt;\"");
 
 			altTrace("All tests passed");
 
@@ -459,7 +462,6 @@ package com.brokenfunction.json {
 			if (!expectedResult) {
 				expectedResult = (new JSONEncoder(input)).getString();;
 			}
-			checkEncode2(input, expectedResult);
 			checkEncode2(input, expectedResult);
 			checkEncode2({"test":input}, "{\"test\":" + expectedResult + "}");
 			checkEncode2([input], "[" + expectedResult + "]");

@@ -152,6 +152,12 @@ function initDecodeJson():Function {
 				result.writeUnsignedInt(0x616c7365);// alse
 			}
 		},
+		"xml": function (data:Object):void {
+			if ((!data.toXMLString is Function) || (data = data.toXMLString() as String) == null) {
+				throw new Error("unserializable XML object encountered");
+			}
+			parseString(data);
+		},
 		"undefined": function (data:Boolean):void {
 			result.writeUnsignedInt(0x6e756c6c);// null
 		}
@@ -170,6 +176,10 @@ function initDecodeJson():Function {
 				return byteOutput.readUTFBytes(byteOutput.length);
 			} else {
 				switch (typeof input) {
+					case "xml":
+						if ((!input.toXMLString is Function) || (input = input.toXMLString() as String) == null) {
+							throw new Error("unserializable XML object encountered");
+						}
 					case "object":
 					case "string":
 						result = byteOutput = new ByteArray();
@@ -187,7 +197,7 @@ function initDecodeJson():Function {
 					case "undefined":
 						return "null";
 					default:
-						throw new Error("Unexpected type encountered");
+						throw new Error("Unexpected type \"" + (typeof input) + "\" encountered");
 				}
 			}
 		} catch (e:TypeError) {
