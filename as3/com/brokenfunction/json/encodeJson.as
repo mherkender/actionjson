@@ -197,7 +197,7 @@ function initDecodeJson():Function {
 					case "undefined":
 						return "null";
 					default:
-						throw new Error("Unexpected type encountered");
+						throw new Error("Unexpected type \"" + (typeof input) + "\" encountered");
 				}
 			}
 		} catch (e:TypeError) {
