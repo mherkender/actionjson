@@ -157,6 +157,12 @@ package com.brokenfunction.json {
 					}
 					_output.writeUTFBytes(String(input));
 					return;
+				case "xml":
+					if ((!input.toXMLString is Function) || (input = input.toXMLString() as String) == null) {
+						throw new Error("unserializable XML object encountered");
+					}
+					parseString(input);
+					return;
 				case "boolean":
 					if (input) {
 						_output.writeUnsignedInt(0x74727565);// true
