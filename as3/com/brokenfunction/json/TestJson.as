@@ -420,7 +420,6 @@ package com.brokenfunction.json {
 				expectedResult = (new JSONEncoder(input)).getString();;
 			}
 			checkEncode2(input, expectedResult);
-			checkEncode2(input, expectedResult);
 			checkEncode2({"test":input}, "{\"test\":" + expectedResult + "}");
 			checkEncode2([input], "[" + expectedResult + "]");
 			checkEncode2([[],[9,9],[[[input]],[]]], "[[],[9,9],[[[" + expectedResult + "]],[]]]");
