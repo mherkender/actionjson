@@ -4,6 +4,8 @@ package com.brokenfunction.json {
 	import flash.utils.ByteArray;
 	import flash.utils.getTimer;
 
+	import mx.utils.ObjectUtil;
+
 	import com.adobe.serialization.json.JSONDecoder;
 	import com.adobe.serialization.json.JSONEncoder;
 
@@ -368,9 +370,9 @@ package com.brokenfunction.json {
 			// try the fast decoder
 			try {
 				trace(input+" -> " + expectedResult);
-				var data:Object = decodeJson(input);
-				var adobeResult:String = (new JSONEncoder(data)).getString();
-				if (expectedResult != adobeResult) {
+				var result:Object = decodeJson(input);
+				var adobeResult:Object = (new JSONEncoder(expectedResult)).getString();
+				if (ObjectUtil.compare(result, adobeResult) == 0) {
 					throw new Error("Result: " + adobeResult);
 				}
 			} catch (e:Error) {
@@ -380,9 +382,9 @@ package com.brokenfunction.json {
 			// try the async decoder
 			try {
 				trace(input+" -> " + expectedResult + " (async)");
-				data = (new JsonDecoderAsync(input)).result;
-				adobeResult = (new JSONEncoder(data)).getString();
-				if (expectedResult != adobeResult) {
+				result = (new JsonDecoderAsync(input)).result;
+				adobeResult = (new JSONEncoder(expectedResult)).getString();
+				if (ObjectUtil.compare(result, adobeResult) == 0) {
 					throw new Error("Result: " + adobeResult);
 				}
 			} catch (e:Error) {
@@ -403,9 +405,9 @@ package com.brokenfunction.json {
 					asyncDecoder.process();
 				}
 
-				data = asyncDecoder.result;
-				adobeResult = (new JSONEncoder(data)).getString();
-				if (expectedResult != adobeResult) {
+				result = asyncDecoder.result;
+				adobeResult = (new JSONEncoder(expectedResult)).getString();
+				if (ObjectUtil.compare(result, adobeResult) == 0) {
 					throw new Error("Result: " + adobeResult);
 				}
 			} catch (e:Error) {
@@ -418,8 +420,8 @@ package com.brokenfunction.json {
 					trace(input+" -> " + expectedResult + " (async 3)");
 					asyncDecoder = new JsonDecoderAsync(input, false);
 					while (!asyncDecoder.process(3)) {};
-					adobeResult = (new JSONEncoder(asyncDecoder.result)).getString();
-					if (expectedResult != adobeResult) {
+					adobeResult = (new JSONEncoder(expectedResult)).getString();
+					if (ObjectUtil.compare(asyncDecoder.result, adobeResult) == 0) {
 						throw new Error("Result: " + adobeResult);
 					}
 				} catch (e:Error) {
@@ -445,9 +447,9 @@ package com.brokenfunction.json {
 					asyncDecoder.process();
 				}
 
-				var data:Object = asyncDecoder.result;
-				var adobeResult:String = (new JSONEncoder(data)).getString();
-				if (expectedResult != adobeResult) {
+				var result:Object = asyncDecoder.result;
+				var adobeResult:String = (new JSONEncoder(expectedResult)).getString();
+				if (ObjectUtil.compare(asyncDecoder.result, adobeResult) == 0) {
 					throw new Error("Result: " + adobeResult);
 				}
 				if (!isNumber && bytes2.position != input.length) {

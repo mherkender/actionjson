@@ -253,7 +253,7 @@ function initDecodeJson():Function {
 			}
 			throw new Error("Expected \"null\" at position " + position);
 		},
-		0x6e: function ():void {// ]
+		0x5d: function ():void {// ]
 			throw new Error("Unexpected end of array at " + position);
 		},
 		0x7d: function ():void {// }
