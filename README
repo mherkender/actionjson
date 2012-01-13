@@ -1,4 +1,4 @@
-actionjson includes three projects
+actionjson includes four projects
 
 decodeJson - A very fast JSON decoder
 Around 5-8x faster than as3corelib's JSON decoder
