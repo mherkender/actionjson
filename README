@@ -16,4 +16,3 @@ Sadly, about the same speed as as3corelib's JSON encoder
 
 Download the library as a swc here:
 http://github.com/mherkender/actionjson/raw/master/actionjson.swc
-(includes optimizations from the apparatmemory branch)
