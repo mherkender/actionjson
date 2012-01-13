@@ -37,4 +37,16 @@
 			</compiler.library-path>
 		</mxmlc>
 	</target>
+
+	<target name="build-actionjsonswc" depends="flex-tasks" description="Build actionjson.swc">
+		<compc fork="true"
+			output="actionjson.swc"
+			include-classes="com.brokenfunction.json.decodeJson com.brokenfunction.json.encodeJson com.brokenfunction.json.JsonDecoderAsync com.brokenfunction.json.JsonEncoderAsync"
+		 	debug="false"
+		 	compiler.optimize="true"
+			static-link-runtime-shared-libraries="true">
+			<compiler.source-path path-element="as3"/>
+		</compc>
+	</target>
+
 </project>
