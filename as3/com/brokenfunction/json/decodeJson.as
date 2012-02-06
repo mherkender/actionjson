@@ -42,7 +42,12 @@ function initDecodeJson():Function {
 	var byteInput:ByteArray;
 	var char:uint;
 
-	const nativeJson:Object = ApplicationDomain.currentDomain.getDefinition("JSON");
+	var nativeJson:Object;
+	try {
+		nativeJson = ApplicationDomain.currentDomain.getDefinition("JSON");
+	} catch (e:ReferenceError) {
+		// ignore
+	}
 
 	const charConvert:ByteArray = new ByteArray();
 	charConvert.length = 0x100;// fill w/ 0's

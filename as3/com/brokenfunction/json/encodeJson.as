@@ -54,7 +54,13 @@ function initDecodeJson():Function {
 	var tempBytes:ByteArray = new ByteArray();
 	var blockNonFiniteNumbers:Boolean;
 
-	const nativeJson:Object = ApplicationDomain.currentDomain.getDefinition("JSON");
+	var nativeJson:Object;
+	try {
+		nativeJson = ApplicationDomain.currentDomain.getDefinition("JSON");
+	} catch (e:ReferenceError) {
+		// ignore
+	}
+
 
 	const charConvert:Array = new Array(0x100);
 	for (j = 0; j < 0xa; j++) {
