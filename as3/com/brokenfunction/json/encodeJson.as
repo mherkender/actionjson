@@ -20,17 +20,31 @@ package com.brokenfunction.json {
 	 * This will either return the result as a string, or write it directly to
 	 * an IDataOutput output stream if the "writeTo" argument is supplied.
 	 *
+	 * To take advantage of the native Flash JSON encoder, set allowNative to true. Since
+	 * the behavior of the native encoder is slightly different when it comes to encoding
+	 * specialized objects, this should only be used on input with simple objects, arrays,
+	 * numbers, booleans and strings. Other features, like the toJson method, are not
+	 * used. See the AS3 JSON reference (link below) for more information.
+	 *
+	 * Currently strictNumberSupport must be true and writeTo must be null to use
+	 * native parsing. This may change, so only set allowNative to true if the differences
+	 * are not important.
+	 *
 	 * Warning: Vectors are not supported, they will be encoded as empty objects.
 	 *
 	 * @parameter input An object to convert to JSON.
 	 * @parameter writeTo An optional IDataOutput output stream to write data to.
+	 * @parameter allowNativeJson Allow using native json encoding in certain situations. This
+	 * changes the behavior of the encoder based on Flash version, so use it carefully.
 	 * @return A valid JSON-encoded string if writeTo is not specified, otherwise
 	 * null is returned.
 	 * @see http://json.org/
+	 * @see http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/JSON.html
 	 */
 	public const encodeJson:Function = initDecodeJson();
 }
 
+import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
 import flash.utils.IDataOutput;
 
@@ -39,6 +53,8 @@ function initDecodeJson():Function {
 	var i:int, j:int, strLen:int, str:String, char:int;
 	var tempBytes:ByteArray = new ByteArray();
 	var blockNonFiniteNumbers:Boolean;
+
+	const nativeJson:Object = ApplicationDomain.currentDomain.getDefinition("JSON");
 
 	const charConvert:Array = new Array(0x100);
 	for (j = 0; j < 0xa; j++) {
@@ -163,7 +179,7 @@ function initDecodeJson():Function {
 		}
 	};
 
-	return function (input:Object, writeTo:IDataOutput = null, strictNumberSupport:Boolean = false):String {
+	return function (input:Object, writeTo:IDataOutput = null, strictNumberSupport:Boolean = false, allowNativeJson:Boolean = false):String {
 		// prepare the input
 		var byteOutput:ByteArray;
 		blockNonFiniteNumbers = strictNumberSupport;
@@ -174,6 +190,8 @@ function initDecodeJson():Function {
 				parse[typeof input](input);
 				byteOutput.position = 0;
 				return byteOutput.readUTFBytes(byteOutput.length);
+			} else if (allowNativeJson && strictNumberSupport && nativeJson) {
+				return nativeJson.stringify(input);
 			} else {
 				switch (typeof input) {
 					case "xml":

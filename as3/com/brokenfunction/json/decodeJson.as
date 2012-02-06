@@ -24,19 +24,25 @@ package com.brokenfunction.json {
 	 * This should be compatible with all valid JSON, and may parse some kinds
 	 * invalid JSON, but generally this is very strict.
 	 *
+	 * If the native JSON decoder is available (Flash 11+) it can be used instead if the allowNativeJson parser is available and the input is a string.
+	 *
 	 * @parameter input A JSON-encoded ByteArray or String.
+	 * @parameter allowNativeJson Use the Native JSON.
 	 * @return The object created by the JSON decoding.
 	 * @see http://json.org/
 	 */
 	public const decodeJson:Function = initDecodeJson();
 }
 
+import flash.system.ApplicationDomain;
 import flash.utils.ByteArray;
 
 function initDecodeJson():Function {
 	var position:uint;
 	var byteInput:ByteArray;
 	var char:uint;
+
+	const nativeJson:Object = ApplicationDomain.currentDomain.getDefinition("JSON");
 
 	const charConvert:ByteArray = new ByteArray();
 	charConvert.length = 0x100;// fill w/ 0's
@@ -272,11 +278,15 @@ function initDecodeJson():Function {
 		0x20: parseWhitespace// " "
 	};
 
-	return function (input:*):Object {
+	return function (input:*, allowNativeJson:Boolean = false):Object {
 		// prepare the input
 		if (input is String) {
-			byteInput = new ByteArray();
-			byteInput.writeUTFBytes(input as String);
+			if (nativeJson && allowNativeJson) {
+				return nativeJson.parse(input);
+			} else {
+				byteInput = new ByteArray();
+				byteInput.writeUTFBytes(input as String);
+			}
 		} else if (input is ByteArray) {
 			byteInput = input as ByteArray;
 		} else {
