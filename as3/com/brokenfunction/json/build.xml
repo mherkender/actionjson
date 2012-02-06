@@ -32,6 +32,7 @@
 			static-link-runtime-shared-libraries="true">
 			<compiler.source-path path-element="as3"/>
 			<default-script-limits max-execution-time="60" max-recursion-depth="256"/>
+ 			<target-player>11.1.0</target-player>
 			<compiler.library-path dir="tools/ason/" append="true">
 				<include name="ason-1.1.2.swc" />
 			</compiler.library-path>
