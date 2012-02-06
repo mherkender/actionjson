@@ -1,3 +1,5 @@
+*With the release of Flash 11 (Oct 2011), Adobe has added native JSON support to Flash, which is significantly faster than anything that can be written in AS3. For projects that want to take advantage of this, while still staying compatible with Flash 9 and 10, there is a new argument in decodeJson and encodeJson that will use the native parser if it is available, giving developers the best of both words.*
+
 actionjson includes four projects
 
 decodeJson - A very fast JSON decoder
