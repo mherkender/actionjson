@@ -2,19 +2,13 @@
 
 actionjson includes four projects
 
-decodeJson - A very fast JSON decoder
-Around 5-8x faster than as3corelib's JSON decoder
+decodeJson - A very fast JSON decoder. Around 5-8x faster than as3corelib's JSON decoder
 
-encodeJson - A very fast json encoder
-Around 3x faster than as3corelib's JSON encoder
+encodeJson - A very fast json encoder. Around 3x faster than as3corelib's JSON encoder
 
-JsonDecoderAsync - An asynchronous JSON parser
-Can parse JSON in chunks, making it great for parsing large objects over time
-Still around 2x faster than as3corelib's JSON decoder
+JsonDecoderAsync - An asynchronous JSON parser. Can parse JSON in chunks, making it great for parsing large objects over time. Still around 2x faster than as3corelib's JSON decoder
 
-JsonEncoderAsync - An asynchronous JSON encoder
-Encodes JSON in chunks, for large objects that need to be encoded over time
-Sadly, about the same speed as as3corelib's JSON encoder
+JsonEncoderAsync - An asynchronous JSON encoder. Encodes JSON in chunks, for large objects that need to be encoded over time. Sadly, about the same speed as as3corelib's JSON encoder
 
 Download the library as a swc here:
 http://github.com/mherkender/actionjson/raw/master/actionjson.swc
